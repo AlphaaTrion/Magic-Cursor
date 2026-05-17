@@ -18,7 +18,7 @@ public sealed class CursorAssetGenerator
     private const int LogicalSize = 48;
     private const int CursorPixelSize = 128;
     private const int PreviewPixelSize = 512;
-    private const string AssetRevision = "q17";
+    private const string AssetRevision = "q18";
 
     private static readonly string[] ThemeRoles =
     [
@@ -669,26 +669,21 @@ public sealed class CursorAssetGenerator
     private static void DrawOmnitrix(DrawingContext dc)
     {
         // Outer dark ring
-        dc.DrawEllipse(Linear("#505458", "#2A2C30", 0, 0, 1, 1), Pen("#080808", 4.0), new Point(24, 24), 22.0, 22.0);
-        // Inner gray ring with green accent
-        dc.DrawEllipse(Linear("#606468", "#3A3C40", 0, 0, 1, 1), Pen("#90E818", 1.5), new Point(24, 24), 17.0, 17.0);
+        dc.DrawEllipse(Brush("#1C1D1F"), Pen("#000000", 3.5), new Point(24, 24), 22.0, 22.0);
+        // Middle gray ring
+        dc.DrawEllipse(Brush("#3A3D40"), Pen("#000000", 2.5), new Point(24, 24), 17.0, 17.0);
         // Inner dark face
-        dc.DrawEllipse(Brush("#2A2C30"), Pen("#181818", 1.5), new Point(24, 24), 13.5, 13.5);
-        // Green hourglass / bowtie shape
-        dc.DrawGeometry(Brush("#90E818"), Pen("#101010", 1.2),
-            Geometry.Parse("M 24,11 L 32,18 L 26,22 L 26,26 L 32,30 L 24,37 L 16,30 L 22,26 L 22,22 L 16,18 Z"));
-        // Gray side panels (left and right diamonds)
-        dc.DrawGeometry(Brush("#505458"), Pen("#101010", 1.0),
-            Geometry.Parse("M 11,24 L 16,18 L 22,22 L 22,26 L 16,30 Z"));
-        dc.DrawGeometry(Brush("#505458"), Pen("#101010", 1.0),
-            Geometry.Parse("M 37,24 L 32,18 L 26,22 L 26,26 L 32,30 Z"));
-        // Outer ring again on top for clean border
-        dc.DrawEllipse(null, Pen("#080808", 4.0), new Point(24, 24), 22.0, 22.0);
-        // Four green indicator dots at cardinal points
+        dc.DrawEllipse(Brush("#232426"), Pen("#000000", 2.0), new Point(24, 24), 13.5, 13.5);
+        // Green hourglass with arc top/bottom edges following the inner circle
+        dc.DrawGeometry(Brush("#92FA1B"), Pen("#000000", 1.5),
+            Geometry.Parse("M 14.5,14.5 A 13.5,13.5 0 0 1 33.5,14.5 L 28.5,24 L 33.5,33.5 A 13.5,13.5 0 0 1 14.5,33.5 L 19.5,24 Z"));
+        // Inner circle border on top for clean edge
+        dc.DrawEllipse(null, Pen("#000000", 2.0), new Point(24, 24), 13.5, 13.5);
+        // Four indicator dots at cardinal points
         foreach (var p in new[] { new Point(24, 2.0), new Point(46.0, 24), new Point(24, 46.0), new Point(2.0, 24) })
         {
-            dc.DrawEllipse(Brush("#404448"), Pen("#080808", 1.2), p, 3.5, 3.5);
-            dc.DrawEllipse(Brush("#90E818"), null, p, 2.5, 2.5);
+            dc.DrawEllipse(Brush("#232426"), Pen("#000000", 1.0), p, 2.5, 2.5);
+            dc.DrawEllipse(Brush("#92FA1B"), Pen("#000000", 0.6), p, 1.4, 1.4);
         }
     }
 
