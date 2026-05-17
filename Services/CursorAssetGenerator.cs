@@ -18,7 +18,7 @@ public sealed class CursorAssetGenerator
     private const int LogicalSize = 48;
     private const int CursorPixelSize = 128;
     private const int PreviewPixelSize = 512;
-    private const string AssetRevision = "q18";
+    private const string AssetRevision = "q19";
 
     private static readonly string[] ThemeRoles =
     [
@@ -729,75 +729,72 @@ public sealed class CursorAssetGenerator
 
     private static void DrawAutobotCrest(DrawingContext dc)
     {
-        // Outer silhouette with evenodd cutouts for forehead triangle and eyes
-        var shape = Geometry.Parse(
+        // Red fill shapes from official Autobot SVG (scaled to 48x48)
+        var redFill = Geometry.Parse(
             "F0 " +
-            "M 24,1 L 30,1 L 34,2 L 46,3 L 46,6 L 44,8 L 41,10 " +
-            "L 39,13 L 37,17 L 42,19 L 42,35 " +
-            "L 39,37 L 35,40 L 31,43 L 29,46 " +
-            "L 19,46 L 17,43 L 13,40 L 9,37 L 6,35 " +
-            "L 6,19 L 11,17 L 9,13 L 7,10 L 4,8 " +
-            "L 2,6 L 2,3 L 14,2 L 18,1 Z " +
-            "M 18,6 L 30,6 L 24,12 Z " +
-            "M 7,9 L 18,6 L 16,17 L 6,19 Z " +
-            "M 41,9 L 42,19 L 32,17 L 30,6 Z");
-        dc.DrawGeometry(Brush("#E02020"), null, shape);
+            "M 18.06,13.62 L 9.26,9.07 8.12,3.39 H 2.5 l 2.62,14.98 5.84,4.04 H 19.7 l -1.64,-8.8 z " +
+            "m -1.77,0.85 l 0.08,1.56 -9.86,-4.44 -0.13,-1.6 9.91,4.48 z " +
+            "m 0.98,4.33 v 1.49 L 7.13,15.78 l -0.16,-1.3 10.3,4.33 z " +
+            "M 37.25,8.21 l 0.79,-3.68 C 28.43,1.13 19.01,1 9.77,4.16 l 0.63,3.77 13,6.6 13.85,-6.33 z " +
+            "m -13.49,1.92 L 18.22,6.3 h 11.15 L 23.76,10.13 z " +
+            "M 45.5,3.88 h -5.75 l -1.36,5.46 -9.24,4.48 -1.63,8.73 h 9.38 l 5.75,-3.62 2.84,-15.06 z " +
+            "m -4.2,7.17 v 1.5 l -9.94,3.9 v -1.49 l 9.94,-3.91 z " +
+            "m -1.06,4.28 v 1.34 L 30.07,20.85 V 19.23 l 10.17,-3.9 z " +
+            "M 9.12,26.05 L 8.68,22.57 l -3.26,-2.07 1.27,19.96 7.75,4.04 0.08,-15.05 -5.4,-3.41 z " +
+            "M 16.07,45.01 l 1.5,1.06 1.99,-6.6 h 7.74 l 2.05,6.52 1.71,-0.92 v -15.62 l -3.48,-3.2 v 10.72 H 19.7 l -0.14,-10.72 -3.49,3.2 v 15.55 z " +
+            "M 19.99,14.68 l 1.2,7.31 v 13.64 h 4.77 V 21.85 l 1.34,-7.17 -3.9,1.64 -3.41,-1.64 z " +
+            "M 20.56,40.89 l -1.56,6.11 h 8.96 l -1.78,-6.11 H 20.56 z " +
+            "M 42.15,20.93 l -3.7,2.56 -0.14,2.7 -5.75,3.48 v 15.13 l 8.04,-3.54 1.55,-20.32 z");
+        dc.DrawGeometry(Brush("#CC2229"), null, redFill);
 
-        // Nose vertical line
-        dc.DrawLine(Pen("#0A0A0A", 2.0), new Point(24, 12), new Point(24, 36));
-        // Left/right vertical panel gaps
-        dc.DrawLine(Pen("#0A0A0A", 1.6), new Point(13, 19), new Point(13, 36));
-        dc.DrawLine(Pen("#0A0A0A", 1.6), new Point(35, 19), new Point(35, 36));
-        // Mouth horizontal gap
-        dc.DrawLine(Pen("#0A0A0A", 1.6), new Point(9, 36), new Point(39, 36));
-        // Outer cheek vent lines
-        dc.DrawLine(Pen("#0A0A0A", 0.8), new Point(6, 23), new Point(13, 23));
-        dc.DrawLine(Pen("#0A0A0A", 0.8), new Point(6, 27), new Point(13, 27));
-        dc.DrawLine(Pen("#0A0A0A", 0.8), new Point(6, 31), new Point(13, 31));
-        dc.DrawLine(Pen("#0A0A0A", 0.8), new Point(35, 23), new Point(42, 23));
-        dc.DrawLine(Pen("#0A0A0A", 0.8), new Point(35, 27), new Point(42, 27));
-        dc.DrawLine(Pen("#0A0A0A", 0.8), new Point(35, 31), new Point(42, 31));
-        // Chin center gap
-        dc.DrawLine(Pen("#0A0A0A", 1.6), new Point(24, 37), new Point(24, 42));
-        // Ear separation lines
-        dc.DrawLine(Pen("#0A0A0A", 1.0), new Point(10, 3), new Point(9, 10));
-        dc.DrawLine(Pen("#0A0A0A", 1.0), new Point(38, 3), new Point(39, 10));
+        // Black outline from official SVG
+        dc.DrawGeometry(null, Pen("#000000", 0.5),
+            Geometry.Parse(
+            "M 8.68,22.57 l -3.26,-2.07 1.27,19.96 7.75,4.04 0.08,-15.05 -5.4,-3.41 -0.44,-3.47 z " +
+            "m 31.07,-18.69 l -1.36,5.46 -9.24,4.48 -1.63,8.73 h 9.38 l 5.75,-3.62 2.84,-15.06 h -5.75 v 0 z " +
+            "m 0.49,12.79 L 30.07,20.85 V 19.23 l 10.17,-3.9 v 1.34 z " +
+            "m 1.06,-4.12 l -9.94,3.9 v -1.49 l 9.94,-3.91 v 1.5 z " +
+            "m -2.84,10.94 l -0.14,2.7 -5.75,3.48 v 15.13 l 8.04,-3.54 1.55,-20.32 -3.7,2.56 z " +
+            "M 16.29,14.47 L 6.38,9.99 l 0.13,1.6 L 16.37,16.04 l -0.08,-1.56 z " +
+            "m 20.96,-6.27 L 23.4,14.54 10.4,7.94 l -0.63,-3.77 C 19.01,1 28.43,1.13 38.04,4.53 l -0.79,3.68 z " +
+            "M 17.27,18.8 L 6.97,14.47 l 0.16,1.3 L 17.27,20.29 v -1.49 z " +
+            "m 3.92,3.19 v 13.64 h 4.77 V 21.85 l 1.34,-7.17 -3.9,1.64 -3.41,-1.64 1.2,7.31 z " +
+            "M 18.06,13.62 l 1.64,8.81 H 10.97 L 5.13,18.37 l -2.62,-14.98 h 5.62 L 9.26,9.07 l 8.8,4.55 z " +
+            "m 5.7,-3.49 l 5.61,-3.84 H 18.22 l 5.54,3.84 z " +
+            "M 16.07,45.01 v -15.55 l 3.49,-3.2 0.14,10.72 h 7.88 v -10.72 l 3.48,3.2 v 15.62 l -1.71,0.92 -2.05,-6.52 h -7.74 l -1.99,6.6 -1.5,-1.06 z " +
+            "m 2.92,1.99 h 8.96 l -1.78,-6.11 H 20.56 l -1.56,6.11 z"));
     }
 
     private static void DrawDecepticonCrest(DrawingContext dc)
     {
-        // Outer silhouette with evenodd cutouts for horn gap, forehead, and eyes
-        var shape = Geometry.Parse(
+        // Purple fill shapes from official Decepticon SVG (scaled to 48x48)
+        var purpleFill = Geometry.Parse(
             "F0 " +
-            "M 5,2 L 7,2 L 7,6 L 9,9 L 15,11 " +
-            "L 20,12 L 22,10 L 24,7 L 26,10 L 28,12 " +
-            "L 33,11 L 39,9 L 41,6 L 41,2 L 43,2 " +
-            "L 43,7 L 44,11 L 42,14 L 42,22 " +
-            "L 40,25 L 40,34 L 37,38 L 33,42 " +
-            "L 28,45 L 24,47 " +
-            "L 20,45 L 15,42 L 11,38 L 8,34 " +
-            "L 8,25 L 6,22 L 6,14 L 4,11 L 5,7 Z " +
-            "M 19,3 L 24,9 L 29,3 Z " +
-            "M 23,14 L 25,14 L 24,17 Z " +
-            "M 12,24 L 22,21 L 20,30 L 10,27 Z " +
-            "M 36,24 L 38,27 L 28,30 L 26,21 Z");
-        dc.DrawGeometry(Brush("#7B3FAA"), null, shape);
+            "M 5.82,40.33 l 15.27,6.59 -16.64,-23.56 1.37,16.97 z " +
+            "M 45.6,3.23 l -3.51,4.71 -10.76,3.18 -0.51,3.29 9.81,-2.52 -0.25,1.96 -9.92,2.7 -0.16,2.07 9.68,-2.43 -0.22,2.06 -8.79,2.31 " +
+            "c -0.94,0.23 -1.81,0.76 -2.65,1.57 l -4.37,3.86 -4.41,-4.15 " +
+            "c -0.67,-0.61 -1.43,-1.06 -2.31,-1.34 l -8.59,-2.62 -0.25,-2.06 9.36,2.74 -0.34,-2.31 -9.6,-2.91 -0.25,-1.9 9.64,2.84 -0.39,-3.26 -10.71,-3.26 " +
+            "L 2.4,2.96 l 1.96,16.63 19.29,27.41 19.63,-26.9 2.31,-16.88 z " +
+            "m -16.45,29.73 l -3.01,-6.08 12.61,-3.77 -9.61,9.85 z " +
+            "M 8.91,22.68 l 12.69,4.04 -3.01,6.25 -9.68,-10.28 z " +
+            "M 41.57,40.67 l 1.64,-17.05 -16.73,23.22 15.09,-6.17 z " +
+            "M 20.06,19.51 l 3.85,3.77 3.7,-3.52 3.09,-18.51 -4.21,7.54 h -4.63 L 17.39,1 l 2.67,18.51 z " +
+            "m 6.17,-7.62 L 24.08,18.65 l -2.23,-6.76 h 4.38 z");
+        dc.DrawGeometry(Brush("#5A5D80"), null, purpleFill);
 
-        // Vent lines
-        dc.DrawLine(Pen("#0A0A0A", 1.0), new Point(8, 15), new Point(21, 14));
-        dc.DrawLine(Pen("#0A0A0A", 1.0), new Point(8, 18), new Point(22, 17));
-        dc.DrawLine(Pen("#0A0A0A", 1.0), new Point(8, 21), new Point(23, 20));
-        dc.DrawLine(Pen("#0A0A0A", 1.0), new Point(40, 15), new Point(27, 14));
-        dc.DrawLine(Pen("#0A0A0A", 1.0), new Point(40, 18), new Point(26, 17));
-        dc.DrawLine(Pen("#0A0A0A", 1.0), new Point(40, 21), new Point(25, 20));
-        // Center vertical line
-        dc.DrawLine(Pen("#0A0A0A", 1.5), new Point(24, 17), new Point(24, 23));
-        // V-face diagonal lines
-        dc.DrawLine(Pen("#0A0A0A", 2.0), new Point(8, 23), new Point(24, 35));
-        dc.DrawLine(Pen("#0A0A0A", 2.0), new Point(40, 23), new Point(24, 35));
-        // Inner chin V-notch
-        dc.DrawGeometry(Brush("#0A0A0A"), null,
-            Geometry.Parse("M 18,38 L 24,44 L 30,38 L 28,37 L 24,41 L 20,37 Z"));
+        // Black outline from official SVG
+        dc.DrawGeometry(null, Pen("#000000", 0.55),
+            Geometry.Parse(
+            "M 41.57,40.67 l -15.09,6.17 16.73,-23.22 -1.64,17.05 z " +
+            "M 26.23,11.89 H 21.85 L 24.08,18.65 l 2.15,-6.76 z " +
+            "m -6.17,7.62 l -2.67,-18.51 4.46,7.79 h 4.63 l 4.21,-7.54 -3.09,18.51 L 23.91,23.28 l -3.85,-3.77 z " +
+            "M 8.91,22.68 l 9.68,10.28 3.01,-6.25 -12.69,-4.04 z " +
+            "m 12.18,24.25 L 4.45,23.36 l 1.37,16.97 15.27,6.59 z " +
+            "m 5.05,-20.04 l 12.61,-3.77 -9.61,9.85 -3.01,-6.08 z " +
+            "m 15.95,-18.95 l -10.76,3.18 -0.51,3.29 9.81,-2.52 -0.25,1.96 -9.92,2.7 -0.16,2.07 9.68,-2.43 -0.22,2.06 -8.79,2.31 " +
+            "c -0.94,0.23 -1.81,0.76 -2.65,1.57 l -4.37,3.86 -4.41,-4.15 " +
+            "c -0.67,-0.61 -1.43,-1.06 -2.31,-1.34 l -8.59,-2.62 -0.25,-2.06 9.36,2.74 -0.34,-2.31 -9.6,-2.91 -0.25,-1.9 9.64,2.84 -0.39,-3.26 -10.71,-3.26 " +
+            "L 2.4,2.96 l 1.96,16.63 19.29,27.41 19.63,-26.9 2.31,-16.88 -3.51,4.71 z"));
     }
 
     private static void DrawSheraSword(DrawingContext dc)
@@ -846,68 +843,70 @@ public sealed class CursorAssetGenerator
 
     private static void DrawAncientStaff(DrawingContext dc)
     {
-        // Warm golden glow aura
-        dc.DrawEllipse(Brush("#F0D060", 0.10), null, new Point(24, 13), 18, 18);
-        dc.DrawEllipse(Brush("#F0D060", 0.05), null, new Point(24, 13), 24, 24);
+        // Staff body - dark brown wooden rod (vertical)
+        dc.DrawLine(Pen("#0E0807", 5.5), new Point(24, 20), new Point(24, 47));
+        dc.DrawLine(Pen("#4B2D28", 4.0), new Point(24, 20), new Point(24, 47));
+        dc.DrawLine(Pen("#8F573C", 1.8), new Point(23.4, 22), new Point(23.4, 46));
+        dc.DrawLine(Pen("#A9734A", 0.7, 0.6), new Point(22.8, 23), new Point(22.8, 45));
 
-        // Staff body - brown wooden rod
-        dc.DrawLine(Pen("#2A1808", 4.5), new Point(24, 19), new Point(24, 47));
-        dc.DrawLine(Pen("#6B4828", 3.2), new Point(24, 19), new Point(24, 47));
-        dc.DrawLine(Pen("#8B6840", 0.8, 0.5), new Point(23, 21), new Point(23, 46));
-
-        // Owl head - rounded top
-        var head = Geometry.Parse(
+        // Owl head - angular carved shape
+        var headOuter = Geometry.Parse(
             "M 24,1 " +
-            "C 15,1 9,5 9,12 " +
-            "C 9,17 12,19 17,20 " +
-            "L 21,20 L 24,22 L 27,20 L 31,20 " +
-            "C 36,19 39,17 39,12 " +
-            "C 39,5 33,1 24,1 Z");
-        dc.DrawGeometry(Linear("#7A5830", "#4A3018", 0, 0, 1, 1), Pen("#1D100B", 1.3), head);
+            "C 14,1 8,5 8,13 " +
+            "C 8,18 11,21 16,22 " +
+            "L 20,22 L 24,24 L 28,22 L 32,22 " +
+            "C 37,21 40,18 40,13 " +
+            "C 40,5 34,1 24,1 Z");
+        dc.DrawGeometry(Brush("#0E0807"), null, headOuter);
 
-        // Inner lighter face area
-        dc.DrawGeometry(Linear("#B08850", "#8A6838", 0, 0, 1, 1), null,
-            Geometry.Parse(
-                "M 24,3 C 17,3 12,6 12,11 " +
-                "C 12,15 15,18 19,18.5 " +
-                "L 24,17 L 29,18.5 " +
-                "C 33,18 36,15 36,11 " +
-                "C 36,6 31,3 24,3 Z"));
+        // Inner carved face - medium brown
+        var headInner = Geometry.Parse(
+            "M 24,2 " +
+            "C 15,2 10,6 10,13 " +
+            "C 10,17 13,20 17,21 " +
+            "L 21,21 L 24,23 L 27,21 L 31,21 " +
+            "C 35,20 38,17 38,13 " +
+            "C 38,6 33,2 24,2 Z");
+        dc.DrawGeometry(Brush("#4B2D28"), null, headInner);
 
-        // Left eye - almond shaped with half-closed look
-        dc.DrawGeometry(Brush("#C8A868"), Pen("#5A3820", 0.6),
+        // Lighter face panel
+        dc.DrawGeometry(Brush("#A9734A"), null,
             Geometry.Parse(
-                "M 14,8 C 14,5 17,5 20,7 " +
-                "C 21,8 21,11 19,12 " +
-                "C 16,12 14,10.5 14,8 Z"));
-        // Left eyelid (half-closed)
-        dc.DrawGeometry(Brush("#6A4020"), null,
-            Geometry.Parse(
-                "M 14,8 C 14,5 17,5 20,7 " +
-                "C 19,8 17,8.5 15,8.2 C 14,8 14,8 14,8 Z"));
-        // Left pupil
-        dc.DrawEllipse(Brush("#1D100B"), null, new Point(17.5, 9.5), 1.8, 1.3);
+                "M 24,4 C 17,4 13,7 13,12 " +
+                "C 13,16 16,19 20,19.5 " +
+                "L 24,18 L 28,19.5 " +
+                "C 32,19 35,16 35,12 " +
+                "C 35,7 31,4 24,4 Z"));
 
-        // Right eye - almond shaped with half-closed look
-        dc.DrawGeometry(Brush("#C8A868"), Pen("#5A3820", 0.6),
-            Geometry.Parse(
-                "M 34,8 C 34,5 31,5 28,7 " +
-                "C 27,8 27,11 29,12 " +
-                "C 32,12 34,10.5 34,8 Z"));
-        // Right eyelid (half-closed)
-        dc.DrawGeometry(Brush("#6A4020"), null,
-            Geometry.Parse(
-                "M 34,8 C 34,5 31,5 28,7 " +
-                "C 29,8 31,8.5 33,8.2 C 34,8 34,8 34,8 Z"));
-        // Right pupil
-        dc.DrawEllipse(Brush("#1D100B"), null, new Point(30.5, 9.5), 1.8, 1.3);
+        // Forehead crease
+        dc.DrawGeometry(Brush("#4B2D28"), null,
+            Geometry.Parse("M 22,5 L 26,5 L 24,9 Z"));
 
-        // Beak - small downward triangle
-        dc.DrawGeometry(Brush("#4A3018"), null,
-            Geometry.Parse("M 22,13 L 26,13 L 24,16.5 Z"));
+        // Left eye socket
+        dc.DrawGeometry(Brush("#8F573C"), Pen("#4B2D28", 0.5),
+            Geometry.Parse(
+                "M 14,9 C 14,6 17,6 20,8 " +
+                "C 21,9 21,12 19,13 " +
+                "C 16,13 14,11.5 14,9 Z"));
+        // Left eye dark
+        dc.DrawEllipse(Brush("#0E0807"), null, new Point(17.5, 10.2), 2.0, 1.5);
 
-        // Subtle golden glow behind head
-        dc.DrawEllipse(Brush("#F0D060", 0.12), null, new Point(24, 12), 14, 14);
+        // Right eye socket
+        dc.DrawGeometry(Brush("#8F573C"), Pen("#4B2D28", 0.5),
+            Geometry.Parse(
+                "M 34,9 C 34,6 31,6 28,8 " +
+                "C 27,9 27,12 29,13 " +
+                "C 32,13 34,11.5 34,9 Z"));
+        // Right eye dark
+        dc.DrawEllipse(Brush("#0E0807"), null, new Point(30.5, 10.2), 2.0, 1.5);
+
+        // Beak / nose
+        dc.DrawGeometry(Brush("#4B2D28"), null,
+            Geometry.Parse("M 22,14 L 26,14 L 24,17.5 Z"));
+
+        // Neck joint detail
+        dc.DrawGeometry(Brush("#4B2D28"), null,
+            Geometry.Parse("M 20,21 L 24,23 L 28,21 L 26,20 L 24,21.5 L 22,20 Z"));
     }
 
     private static void DrawStarfleetDelta(DrawingContext dc)
