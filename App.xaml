@@ -115,7 +115,7 @@
                                 Padding="{TemplateBinding Padding}"
                                 CornerRadius="4"
                                 Margin="2,1">
-                            <ContentPresenter />
+                            <ContentPresenter TextElement.Foreground="{StaticResource TextMain}" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
@@ -144,6 +144,10 @@
                         <Grid>
                             <ToggleButton x:Name="Toggle"
                                           Focusable="False"
+                                          Background="{Binding Background, RelativeSource={RelativeSource TemplatedParent}}"
+                                          BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource TemplatedParent}}"
+                                          BorderThickness="{Binding BorderThickness, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Foreground="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
                                           IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                                           ClickMode="Press">
                                 <ToggleButton.Template>
@@ -186,7 +190,8 @@
                                               ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
                                               Margin="{TemplateBinding Padding}"
                                               VerticalAlignment="Center"
-                                              HorizontalAlignment="Left" />
+                                              HorizontalAlignment="Left"
+                                              TextElement.Foreground="{StaticResource TextMain}" />
                             <Popup x:Name="Popup"
                                    Placement="Bottom"
                                    IsOpen="{TemplateBinding IsDropDownOpen}"

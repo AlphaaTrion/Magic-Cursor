@@ -273,13 +273,20 @@ public partial class MainWindow : Window
                 var rebuilt = _themeService.RebuildBuiltInTheme(theme.Id, selectedColor);
                 if (rebuilt is not null)
                 {
+                    var wasActive = theme.IsActive;
                     var index = _themes.IndexOf(theme);
                     if (index >= 0)
                     {
-                        rebuilt.IsActive = theme.IsActive;
+                        rebuilt.IsActive = wasActive;
                         _themes[index] = rebuilt;
                         ThemesListBox.SelectedItem = rebuilt;
                         ApplyOverlayEffect(rebuilt);
+                    }
+
+                    if (wasActive)
+                    {
+                        _cursorService.Apply(rebuilt);
+                        SetActiveTheme(rebuilt.Id);
                     }
                 }
             }
