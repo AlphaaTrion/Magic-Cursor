@@ -119,6 +119,7 @@ public sealed class ClickEffectOverlayService : IDisposable
         if (!string.IsNullOrEmpty(CurrentGlowCursorPath))
         {
             TriggerGlowSwap();
+            return;
         }
 
         _window.UpdateBounds();
