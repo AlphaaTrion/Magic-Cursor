@@ -18,7 +18,7 @@ public sealed class CursorAssetGenerator
     private const int LogicalSize = 48;
     private const int CursorPixelSize = 128;
     private const int PreviewPixelSize = 512;
-    private const string AssetRevision = "q16";
+    private const string AssetRevision = "q17";
 
     private static readonly string[] ThemeRoles =
     [
@@ -548,88 +548,122 @@ public sealed class CursorAssetGenerator
 
     private static void DrawHeroSword(DrawingContext dc)
     {
-        // Sword of Daylight - broad silver cleaver blade with blue gem
-        // Blade shadow
-        dc.DrawGeometry(Brush("#000000", 0.10), null,
-            Geometry.Parse("M 22,2 L 28,2 L 28,24 L 44,20 L 46,24 L 30,30 L 22,28 Z"));
+        // Sword of Daylight - asymmetric blade with crescent cutout (Trollhunters reference)
 
-        // Main blade - broad cleaver shape
+        // Ambient cyan glow aura
+        dc.DrawGeometry(Brush("#00E5FF", 0.15), null,
+            Geometry.Parse("M 24,0 L 29,7 L 29,29 L 20,29 L 20,15 A 3.5,3.5 0 0 0 20,8 L 20,4 Z"));
+
+        // Main blade - right side cleaver edge, left side crescent cutout
         var blade = Geometry.Parse(
-            "M 21,1 L 27,1 L 27,23 L 43,19 L 45,23 " +
-            "L 29,29 L 21,27 Z");
-        dc.DrawGeometry(Linear("#D8DEE8", "#8898AC", 0, 0, 1, 1), Pen("#2A3040", 1.3), blade);
+            "M 24,1 L 28,7 L 28,28 " +
+            "L 21,28 L 21,15 A 3,3 0 0 0 21,9 L 21,5 Z");
+        dc.DrawGeometry(Linear("#B2EBF2", "#00ACC1", 0, 0, 1, 0), Pen("#00BCD4", 0.5), blade);
 
-        // Blade highlight stripe
-        dc.DrawGeometry(Linear("#FFFFFF", "#C0D0E0", 0, 0, 1, 1), null,
-            Geometry.Parse("M 22,3 L 25,3 L 25,24 L 35,22 L 34,24 L 22,26 Z"));
-        // Blade detail lines
-        dc.DrawLine(Pen("#606E80", 0.7), new Point(24, 3), new Point(24, 26));
-        dc.DrawLine(Pen("#606E80", 0.6), new Point(27, 22), new Point(42, 20));
+        // Central ridge highlight
+        dc.DrawLine(Pen("#FFFFFF", 0.6, 0.9), new Point(24, 1), new Point(25, 7));
+        dc.DrawLine(Pen("#FFFFFF", 0.6, 0.9), new Point(25, 7), new Point(25, 28));
+        // Chisel line from left upper to ridge
+        dc.DrawLine(Pen("#FFFFFF", 0.4, 0.7), new Point(21, 5), new Point(25, 7));
 
-        // Guard - angular crossguard
+        // Rune channel
+        dc.DrawLine(Pen("#00838F", 1.3, 0.5), new Point(24.6, 10), new Point(24.6, 25));
+
+        // Glowing runes - T shape
+        dc.DrawLine(Pen("#FFFFFF", 0.5, 0.95), new Point(24.1, 12), new Point(25.1, 12));
+        dc.DrawLine(Pen("#FFFFFF", 0.5, 0.95), new Point(24.6, 12), new Point(24.6, 13.7));
+        // X shape
+        dc.DrawLine(Pen("#FFFFFF", 0.5, 0.95), new Point(24.1, 16), new Point(25.1, 17.7));
+        dc.DrawLine(Pen("#FFFFFF", 0.5, 0.95), new Point(25.1, 16), new Point(24.1, 17.7));
+        // Z shape
+        dc.DrawLine(Pen("#FFFFFF", 0.5, 0.95), new Point(24.1, 20.5), new Point(25.1, 20.5));
+        dc.DrawLine(Pen("#FFFFFF", 0.5, 0.95), new Point(25.1, 20.5), new Point(24.1, 22.2));
+        dc.DrawLine(Pen("#FFFFFF", 0.5, 0.95), new Point(24.1, 22.2), new Point(25.1, 22.2));
+
+        // Heavy troll crossguard
         var guard = Geometry.Parse(
-            "M 16,28 L 24,26 L 32,28 L 34,30 L 34,33 " +
-            "L 24,31 L 14,33 L 14,30 Z");
-        dc.DrawGeometry(Linear("#303848", "#101620", 0, 0, 1, 1), Pen("#05080D", 1.2), guard);
+            "M 17,28 L 31,28 L 33,31 L 28,32 L 24,31 L 20,32 L 16,31 Z");
+        dc.DrawGeometry(Linear("#78909C", "#263238", 0, 0, 1, 1), Pen("#1A237E", 0.5), guard);
 
-        // Blue gem
-        dc.DrawEllipse(Brush("#55E5F2", 0.25), null, new Point(24, 31), 4.5, 3.5);
-        dc.DrawEllipse(Linear("#9CF6FF", "#1A7A90", 0, 0, 1, 1), Pen("#102733", 0.8), new Point(24, 31), 2.8, 2.2);
-        dc.DrawEllipse(Brush("#FFFFFF", 0.85), null, new Point(23.2, 30.2), 0.6, 0.5);
+        // Amulet center gem
+        dc.DrawEllipse(Linear("#78909C", "#263238", 0, 0, 1, 1), Pen("#90A4AE", 0.5), new Point(24, 30), 2.5, 2.5);
+        dc.DrawEllipse(Brush("#00E5FF"), null, new Point(24, 30), 1.4, 1.4);
+        dc.DrawGeometry(Brush("#FFFFFF", 0.8), null,
+            Geometry.Parse("M 24,29 L 25.2,30 L 24,31 L 22.8,30 Z"));
 
-        // Grip
-        dc.DrawLine(Pen("#253040", 4.5), new Point(24, 34), new Point(24, 44));
-        dc.DrawLine(Pen("#0B0F16", 1.0), new Point(24, 34), new Point(24, 44));
-        // Grip wrapping lines
-        dc.DrawLine(Pen("#4A5568", 0.5), new Point(22, 36), new Point(26, 37));
-        dc.DrawLine(Pen("#4A5568", 0.5), new Point(22, 39), new Point(26, 40));
-        dc.DrawLine(Pen("#4A5568", 0.5), new Point(22, 42), new Point(26, 43));
+        // Wrapped grip
+        dc.DrawLine(Pen("#1C313A", 2.5), new Point(24, 33), new Point(24, 44));
+        // Spiral accents
+        dc.DrawLine(Pen("#00B0FF", 0.4, 0.8), new Point(22.8, 35), new Point(25.3, 35.8));
+        dc.DrawLine(Pen("#00B0FF", 0.4, 0.8), new Point(22.8, 37.5), new Point(25.3, 38.3));
+        dc.DrawLine(Pen("#00B0FF", 0.4, 0.8), new Point(22.8, 40), new Point(25.3, 40.8));
+        dc.DrawLine(Pen("#00B0FF", 0.4, 0.8), new Point(22.8, 42.5), new Point(25.3, 43.3));
 
         // Pommel
-        dc.DrawEllipse(Linear("#4A5565", "#1A2030", 0, 0, 1, 1), Pen("#050A10", 0.8), new Point(24, 45.5), 2.5, 2.0);
-        dc.DrawEllipse(Brush("#55E5F2", 0.5), null, new Point(24, 45.5), 1.2, 1.0);
+        dc.DrawEllipse(Linear("#78909C", "#263238", 0, 0, 1, 1), Pen("#1A237E", 0.5), new Point(24, 45), 1.5, 1.5);
+        dc.DrawEllipse(Brush("#00E5FF"), null, new Point(24, 45), 0.5, 0.5);
     }
 
     private static void DrawEclipseSword(DrawingContext dc)
     {
-        // Sword of Eclipse - dark blade with red energy veins (same shape as Daylight)
-        // Red energy glow behind blade
-        dc.DrawGeometry(Brush("#FF1020", 0.08), null,
-            Geometry.Parse("M 22,2 L 28,2 L 28,24 L 44,20 L 46,24 L 30,30 L 22,28 Z"));
+        // Sword of Eclipse - dark obsidian blade with red/orange energy (same silhouette as Daylight)
 
-        // Main blade - same cleaver shape but dark
+        // Ambient red glow aura
+        dc.DrawGeometry(Brush("#FF3D00", 0.18), null,
+            Geometry.Parse("M 24,0 L 29,7 L 29,29 L 20,29 L 20,15 A 3.5,3.5 0 0 0 20,8 L 20,4 Z"));
+
+        // Main blade - dark with red/orange edge stroke
         var blade = Geometry.Parse(
-            "M 21,1 L 27,1 L 27,23 L 43,19 L 45,23 " +
-            "L 29,29 L 21,27 Z");
-        dc.DrawGeometry(Linear("#1A2040", "#080C1A", 0, 0, 1, 1), Pen("#050810", 1.3), blade);
+            "M 24,1 L 28,7 L 28,28 " +
+            "L 21,28 L 21,15 A 3,3 0 0 0 21,9 L 21,5 Z");
+        dc.DrawGeometry(Linear("#37474F", "#0D1117", 0, 0, 1, 0), Pen("#FF3D00", 0.6), blade);
 
-        // Red energy vein lines
-        dc.DrawLine(Pen("#FF1030", 1.4), new Point(24, 3), new Point(24, 26));
-        dc.DrawLine(Pen("#FF1030", 1.0), new Point(22, 4), new Point(22, 25));
-        dc.DrawLine(Pen("#FF1030", 0.7), new Point(27, 22), new Point(42, 20));
-        dc.DrawLine(Pen("#FF4060", 0.5, 0.8), new Point(23, 6), new Point(26, 6));
-        dc.DrawLine(Pen("#FF4060", 0.5, 0.8), new Point(23, 14), new Point(26, 14));
+        // Red inner edge glow lines
+        dc.DrawLine(Pen("#FF6D00", 0.4, 0.8), new Point(24, 1), new Point(28, 7));
+        dc.DrawLine(Pen("#FF6D00", 0.4, 0.8), new Point(28, 7), new Point(28, 28));
+        dc.DrawLine(Pen("#FF6D00", 0.4, 0.8), new Point(21, 5), new Point(21, 9));
+        dc.DrawLine(Pen("#FF6D00", 0.4, 0.8), new Point(21, 15), new Point(21, 28));
 
-        // Guard - angular crossguard (dark red variant)
+        // Central ridge (red heat)
+        dc.DrawLine(Pen("#FF3D00", 0.5, 0.9), new Point(24, 1), new Point(25, 7));
+        dc.DrawLine(Pen("#FF3D00", 0.5, 0.9), new Point(25, 7), new Point(25, 28));
+
+        // Rune channel (dark brown)
+        dc.DrawLine(Pen("#3E2723", 1.3), new Point(24.6, 10), new Point(24.6, 25));
+
+        // Glowing red/orange runes - T shape
+        dc.DrawLine(Pen("#FF9100", 0.5, 0.95), new Point(24.1, 12), new Point(25.1, 12));
+        dc.DrawLine(Pen("#FF9100", 0.5, 0.95), new Point(24.6, 12), new Point(24.6, 13.7));
+        // X shape
+        dc.DrawLine(Pen("#FF9100", 0.5, 0.95), new Point(24.1, 16), new Point(25.1, 17.7));
+        dc.DrawLine(Pen("#FF9100", 0.5, 0.95), new Point(25.1, 16), new Point(24.1, 17.7));
+        // Z shape
+        dc.DrawLine(Pen("#FF9100", 0.5, 0.95), new Point(24.1, 20.5), new Point(25.1, 20.5));
+        dc.DrawLine(Pen("#FF9100", 0.5, 0.95), new Point(25.1, 20.5), new Point(24.1, 22.2));
+        dc.DrawLine(Pen("#FF9100", 0.5, 0.95), new Point(24.1, 22.2), new Point(25.1, 22.2));
+
+        // Spiked black crossguard (slightly wider)
         var guard = Geometry.Parse(
-            "M 16,28 L 24,26 L 32,28 L 34,30 L 34,33 " +
-            "L 24,31 L 14,33 L 14,30 Z");
-        dc.DrawGeometry(Linear("#2A1020", "#0D060B", 0, 0, 1, 1), Pen("#070305", 1.2), guard);
-        dc.DrawLine(Pen("#FF1030", 0.8), new Point(16, 30), new Point(32, 30));
+            "M 16,28 L 32,28 L 33,31 L 29,32 L 24,31 L 19,32 L 15,31 Z");
+        dc.DrawGeometry(Linear("#424242", "#141414", 0, 0, 1, 1), Pen("#000000", 0.5), guard);
 
-        // Red gem
-        dc.DrawEllipse(Brush("#FF1030", 0.25), null, new Point(24, 31), 4.5, 3.5);
-        dc.DrawEllipse(Linear("#FF4060", "#B20618", 0, 0, 1, 1), Pen("#31040A", 0.8), new Point(24, 31), 2.8, 2.2);
-        dc.DrawEllipse(Brush("#FF8888", 0.65), null, new Point(23.2, 30.2), 0.5, 0.5);
+        // Eclipse amulet gem (red core)
+        dc.DrawEllipse(Linear("#424242", "#141414", 0, 0, 1, 1), Pen("#424242", 0.5), new Point(24, 30), 2.5, 2.5);
+        dc.DrawEllipse(Brush("#FF1744"), null, new Point(24, 30), 1.4, 1.4);
+        dc.DrawGeometry(Brush("#FFFF00", 0.7), null,
+            Geometry.Parse("M 24,29 L 25.2,30 L 24,31 L 22.8,30 Z"));
 
-        // Grip
-        dc.DrawLine(Pen("#2A1018", 4.5), new Point(24, 34), new Point(24, 44));
-        dc.DrawLine(Pen("#0A060A", 1.0), new Point(24, 34), new Point(24, 44));
-        dc.DrawLine(Pen("#FF1030", 0.6), new Point(24, 35), new Point(24, 43));
+        // Dark grip
+        dc.DrawLine(Pen("#151515", 2.5), new Point(24, 33), new Point(24, 44));
+        // Red spiral accents
+        dc.DrawLine(Pen("#DD2C00", 0.4, 0.9), new Point(22.8, 35), new Point(25.3, 35.8));
+        dc.DrawLine(Pen("#DD2C00", 0.4, 0.9), new Point(22.8, 37.5), new Point(25.3, 38.3));
+        dc.DrawLine(Pen("#DD2C00", 0.4, 0.9), new Point(22.8, 40), new Point(25.3, 40.8));
+        dc.DrawLine(Pen("#DD2C00", 0.4, 0.9), new Point(22.8, 42.5), new Point(25.3, 43.3));
 
         // Pommel
-        dc.DrawEllipse(Linear("#2A1020", "#0D060B", 0, 0, 1, 1), Pen("#070305", 0.8), new Point(24, 45.5), 2.5, 2.0);
-        dc.DrawEllipse(Brush("#FF1030", 0.5), null, new Point(24, 45.5), 1.2, 1.0);
+        dc.DrawEllipse(Linear("#424242", "#141414", 0, 0, 1, 1), Pen("#000000", 0.5), new Point(24, 45), 1.5, 1.5);
+        dc.DrawEllipse(Brush("#FF3D00"), null, new Point(24, 45), 0.5, 0.5);
     }
 
     private static void DrawOmnitrix(DrawingContext dc)
@@ -1144,8 +1178,8 @@ public sealed class CursorAssetGenerator
         new("candy-bolt", "Candy Bolt", "Bright lightning cursor with candy stripes.", "Playful", 21, 3, new ClickEffect { Type = "Sparkles", PrimaryColor = "#FFE46A", SecondaryColor = "#F25AAE", ParticleCount = 9, Radius = 30, DurationMs = 530 }),
         new("minimal-crosshair", "Minimal Crosshair", "Precision ring cursor for focused work.", "Utility", 24, 24, new ClickEffect { Type = "Rings", PrimaryColor = "#202124", SecondaryColor = "#55F7FF", ParticleCount = 4, Radius = 24, DurationMs = 450 }),
         new("lightsaber", "Lightsaber", "A glowing saber pointer with configurable blade color.", "Sci-Fi", 5, 5, new ClickEffect { Type = "Saber Sparks", PrimaryColor = "#55F7FF", SecondaryColor = "#FFFFFF", ParticleCount = 10, Radius = 34, DurationMs = 430 }, "#55F7FF"),
-        new("hero-sword", "Sword of Daylight", "A broad silver daylight sword cursor with cyan jewel details.", "Fantasy", 7, 5, new ClickEffect { Type = "Blade Glints", PrimaryColor = "#DCE7F2", SecondaryColor = "#5FE2EF", ParticleCount = 8, Radius = 28, DurationMs = 470 }),
-        new("eclipse-sword", "Sword of Eclipse", "A dark red energy sword cursor with subtle cursed glints.", "Fantasy", 7, 5, new ClickEffect { Type = "Cursed Sparks", PrimaryColor = "#FF123A", SecondaryColor = "#7E0A18", ParticleCount = 9, Radius = 28, DurationMs = 520 }),
+        new("hero-sword", "Sword of Daylight", "An asymmetric cyan blade cursor with crescent cutout and rune channel.", "Fantasy", 24, 1, new ClickEffect { Type = "Blade Glints", PrimaryColor = "#DCE7F2", SecondaryColor = "#5FE2EF", ParticleCount = 8, Radius = 28, DurationMs = 470 }),
+        new("eclipse-sword", "Sword of Eclipse", "A dark obsidian blade cursor with red energy veins and rune channel.", "Fantasy", 24, 1, new ClickEffect { Type = "Cursed Sparks", PrimaryColor = "#FF123A", SecondaryColor = "#7E0A18", ParticleCount = 9, Radius = 28, DurationMs = 520 }),
         new("omnitrix", "Omnitrix", "A green alien-tech emblem cursor with pulse rings.", "Sci-Fi", 24, 24, new ClickEffect { Type = "Rings", PrimaryColor = "#B8FF2F", SecondaryColor = "#2DFF7A", ParticleCount = 6, Radius = 30, DurationMs = 520 }),
         new("tardis", "TARDIS", "A compact blue police box cursor with timey glow pulses.", "Sci-Fi", 10, 7, new ClickEffect { Type = "Rings", PrimaryColor = "#4A67FF", SecondaryColor = "#FFFFFF", ParticleCount = 6, Radius = 32, DurationMs = 580 }),
         new("autobot-crest", "Autobot Crest", "A red-and-silver robot faction crest inspired cursor.", "Robots", 24, 4, new ClickEffect { Type = "Energon Sparks", PrimaryColor = "#F04B4B", SecondaryColor = "#D8DEE8", ParticleCount = 9, Radius = 30, DurationMs = 500 }),
