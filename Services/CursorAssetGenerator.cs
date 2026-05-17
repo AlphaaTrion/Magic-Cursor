@@ -18,7 +18,7 @@ public sealed class CursorAssetGenerator
     private const int LogicalSize = 48;
     private const int CursorPixelSize = 128;
     private const int PreviewPixelSize = 512;
-    private const string AssetRevision = "q13";
+    private const string AssetRevision = "q14";
 
     private static readonly string[] ThemeRoles =
     [
@@ -549,77 +549,76 @@ public sealed class CursorAssetGenerator
     private static void DrawHeroSword(DrawingContext dc)
     {
         dc.DrawGeometry(Brush("#000000", 0.12), null,
-            Geometry.Parse("M 3,8 L 10,1 L 44,12 L 46,14 L 44,18 L 34,36 Z"));
+            Geometry.Parse("M 4,18 L 8,4 L 42,1 L 46,4 L 44,14 L 32,30 Z"));
 
         var blade = Geometry.Parse(
-            "M 3,7 L 10,1 " +
-            "L 38,11 L 44,12 L 44,14 L 43,18 " +
-            "L 32,30 L 30,26 L 6,12 Z");
+            "M 4,16 L 8,4 " +
+            "L 40,2 L 44,1 L 46,4 L 44,10 " +
+            "L 42,14 L 30,28 L 28,24 L 6,18 Z");
         dc.DrawGeometry(Linear("#E8EEF5", "#8A9AB0", 0, 0, 1, 1), Pen("#0C121A", 1.5), blade);
 
         dc.DrawGeometry(Linear("#FFFFFF", "#D0D8E4", 0, 0, 1, 1), null,
-            Geometry.Parse("M 6,8 L 36,17 L 40,13 L 10,2.5 Z"));
-        dc.DrawGeometry(Brush("#8A9AAC", 0.5), null,
-            Geometry.Parse("M 36,17 L 43,16 L 36,27 L 31,26 Z"));
+            Geometry.Parse("M 7,8 L 10,4 L 42,3 L 44,6 L 40,8 L 8,14 Z"));
+        dc.DrawGeometry(Brush("#8A9AAC", 0.4), null,
+            Geometry.Parse("M 8,14 L 40,8 L 42,12 L 32,24 L 28,24 Z"));
 
-        dc.DrawLine(Pen("#606E80", 0.8), new Point(10, 5), new Point(38, 14));
-        dc.DrawLine(Pen("#606E80", 0.7), new Point(12, 9), new Point(35, 18));
-        dc.DrawLine(Pen("#FFFFFF", 0.7, 0.7), new Point(7, 6), new Point(30, 12));
-        dc.DrawLine(Pen("#B8C5D2", 0.5), new Point(15, 12), new Point(36, 21));
+        dc.DrawLine(Pen("#606E80", 0.9), new Point(10, 7), new Point(42, 5));
+        dc.DrawLine(Pen("#606E80", 0.8), new Point(10, 11), new Point(40, 8));
+        dc.DrawLine(Pen("#FFFFFF", 0.7, 0.6), new Point(9, 5), new Point(38, 3));
 
         var guard = Geometry.Parse(
-            "M 24,28 L 30,22 L 34,22 L 40,28 " +
-            "L 35,34 L 33,35 L 30,35 L 25,34 Z");
+            "M 22,26 L 28,20 L 32,20 L 38,26 " +
+            "L 34,32 L 32,33 L 28,33 L 24,32 Z");
         dc.DrawGeometry(Linear("#303848", "#101620", 0, 0, 1, 1), Pen("#05080D", 1.3), guard);
-        dc.DrawEllipse(Brush("#4A5568"), null, new Point(27, 25.5), 0.9, 0.9);
-        dc.DrawEllipse(Brush("#4A5568"), null, new Point(37, 25.5), 0.9, 0.9);
+        dc.DrawEllipse(Brush("#4A5568"), null, new Point(26, 23), 0.9, 0.9);
+        dc.DrawEllipse(Brush("#4A5568"), null, new Point(35, 23), 0.9, 0.9);
 
-        dc.DrawLine(Pen("#101620", 4.0), new Point(33, 35), new Point(44, 45));
-        dc.DrawLine(Pen("#253040", 5.5), new Point(34, 34), new Point(42, 41));
-        dc.DrawLine(Pen("#0B0F16", 1.0), new Point(35, 35), new Point(42, 41));
+        dc.DrawLine(Pen("#101620", 4.0), new Point(31, 33), new Point(43, 44));
+        dc.DrawLine(Pen("#253040", 5.5), new Point(32, 32), new Point(41, 40));
+        dc.DrawLine(Pen("#0B0F16", 1.0), new Point(33, 33), new Point(41, 40));
 
-        dc.DrawEllipse(Brush("#55E5F2", 0.25), null, new Point(31, 30), 5.0, 5.0);
-        dc.DrawEllipse(Linear("#9CF6FF", "#1A7A90", 0, 0, 1, 1), Pen("#102733", 0.9), new Point(31, 30), 3.0, 3.0);
-        dc.DrawEllipse(Brush("#FFFFFF", 0.88), null, new Point(30, 29), 0.7, 0.7);
+        dc.DrawEllipse(Brush("#55E5F2", 0.25), null, new Point(30, 28), 5.0, 5.0);
+        dc.DrawEllipse(Linear("#9CF6FF", "#1A7A90", 0, 0, 1, 1), Pen("#102733", 0.9), new Point(30, 28), 3.0, 3.0);
+        dc.DrawEllipse(Brush("#FFFFFF", 0.88), null, new Point(29, 27), 0.7, 0.7);
 
-        dc.DrawEllipse(Linear("#4A5565", "#1A2030", 0, 0, 1, 1), Pen("#050A10", 0.8), new Point(43.5, 43.5), 2.2, 2.2);
-        dc.DrawEllipse(Brush("#55E5F2", 0.5), null, new Point(43.5, 43.5), 1.2, 1.2);
+        dc.DrawEllipse(Linear("#4A5565", "#1A2030", 0, 0, 1, 1), Pen("#050A10", 0.8), new Point(43, 43.5), 2.2, 2.2);
+        dc.DrawEllipse(Brush("#55E5F2", 0.5), null, new Point(43, 43.5), 1.2, 1.2);
     }
 
     private static void DrawEclipseSword(DrawingContext dc)
     {
         dc.DrawGeometry(Brush("#FF1020", 0.08), null,
-            Geometry.Parse("M 3,8 L 10,1 L 44,12 L 46,14 L 44,18 L 34,36 Z"));
+            Geometry.Parse("M 4,18 L 8,4 L 42,1 L 46,4 L 44,14 L 32,30 Z"));
 
         var blade = Geometry.Parse(
-            "M 3,7 L 10,1 " +
-            "L 38,11 L 44,12 L 44,14 L 43,18 " +
-            "L 32,30 L 30,26 L 6,12 Z");
+            "M 4,16 L 8,4 " +
+            "L 40,2 L 44,1 L 46,4 L 44,10 " +
+            "L 42,14 L 30,28 L 28,24 L 6,18 Z");
         dc.DrawGeometry(Linear("#1A2040", "#080C1A", 0, 0, 1, 1), Pen("#050810", 1.5), blade);
 
         dc.DrawGeometry(Linear("#141830", "#0A0E1A", 0, 0, 1, 1), null,
-            Geometry.Parse("M 6,8 L 36,17 L 40,13 L 10,2.5 Z"));
+            Geometry.Parse("M 7,8 L 10,4 L 42,3 L 44,6 L 40,8 L 8,14 Z"));
 
-        dc.DrawLine(Pen("#FF1030", 1.6), new Point(8, 5), new Point(36, 14));
-        dc.DrawLine(Pen("#FF1030", 1.2), new Point(10, 9), new Point(34, 18));
-        dc.DrawLine(Pen("#FF1030", 0.8), new Point(14, 12), new Point(36, 21));
-        dc.DrawLine(Pen("#FF4060", 0.6, 0.9), new Point(7, 7), new Point(28, 13));
-        dc.DrawLine(Pen("#FF1030", 0.9), new Point(38, 14), new Point(40, 22));
+        dc.DrawLine(Pen("#FF1030", 1.6), new Point(10, 7), new Point(42, 5));
+        dc.DrawLine(Pen("#FF1030", 1.2), new Point(10, 11), new Point(40, 8));
+        dc.DrawLine(Pen("#FF1030", 0.8), new Point(12, 15), new Point(38, 11));
+        dc.DrawLine(Pen("#FF4060", 0.6, 0.9), new Point(8, 5), new Point(30, 3));
+        dc.DrawLine(Pen("#FF1030", 0.9), new Point(42, 8), new Point(44, 12));
 
         var guard = Geometry.Parse(
-            "M 24,28 L 30,22 L 34,22 L 40,28 " +
-            "L 35,34 L 33,35 L 30,35 L 25,34 Z");
+            "M 22,26 L 28,20 L 32,20 L 38,26 " +
+            "L 34,32 L 32,33 L 28,33 L 24,32 Z");
         dc.DrawGeometry(Linear("#2A1020", "#0D060B", 0, 0, 1, 1), Pen("#070305", 1.2), guard);
-        dc.DrawLine(Pen("#FF1030", 1.0), new Point(28, 26), new Point(36, 26));
+        dc.DrawLine(Pen("#FF1030", 1.0), new Point(26, 24), new Point(34, 24));
 
-        dc.DrawEllipse(Brush("#FF1030", 0.28), null, new Point(31, 30), 5.0, 5.0);
-        dc.DrawEllipse(Linear("#FF4060", "#B20618", 0, 0, 1, 1), Pen("#31040A", 0.8), new Point(31, 30), 2.8, 2.8);
-        dc.DrawEllipse(Brush("#FF8888", 0.65), null, new Point(30, 29), 0.6, 0.6);
+        dc.DrawEllipse(Brush("#FF1030", 0.28), null, new Point(30, 28), 5.0, 5.0);
+        dc.DrawEllipse(Linear("#FF4060", "#B20618", 0, 0, 1, 1), Pen("#31040A", 0.8), new Point(30, 28), 2.8, 2.8);
+        dc.DrawEllipse(Brush("#FF8888", 0.65), null, new Point(29, 27), 0.6, 0.6);
 
-        dc.DrawLine(Pen("#120810", 4.0), new Point(33, 35), new Point(44, 45));
-        dc.DrawLine(Pen("#2A1018", 5.5), new Point(34, 34), new Point(42, 41));
-        dc.DrawLine(Pen("#0A060A", 1.0), new Point(35, 35), new Point(42, 41));
-        dc.DrawLine(Pen("#FF1030", 0.7), new Point(37, 37), new Point(41, 40));
+        dc.DrawLine(Pen("#120810", 4.0), new Point(31, 33), new Point(43, 44));
+        dc.DrawLine(Pen("#2A1018", 5.5), new Point(32, 32), new Point(41, 40));
+        dc.DrawLine(Pen("#0A060A", 1.0), new Point(33, 33), new Point(41, 40));
+        dc.DrawLine(Pen("#FF1030", 0.7), new Point(35, 35), new Point(40, 39));
     }
 
     private static void DrawOmnitrix(DrawingContext dc)
@@ -630,20 +629,17 @@ public sealed class CursorAssetGenerator
 
         dc.DrawEllipse(null, Pen("#80D818", 1.5), new Point(24, 24), 14.5, 14.5);
 
-        dc.DrawEllipse(Brush("#606468"), null, new Point(24, 24), 13.0, 13.0);
-
-        dc.DrawGeometry(Brush("#80D818"), Pen("#080808", 1.8),
-            Geometry.Parse("M 17,11 L 31,11 L 26.5,21 L 21.5,21 Z"));
-        dc.DrawGeometry(Brush("#80D818"), Pen("#080808", 1.8),
-            Geometry.Parse("M 17,37 L 31,37 L 26.5,27 L 21.5,27 Z"));
+        dc.DrawEllipse(Brush("#80D818"), null, new Point(24, 24), 13.0, 13.0);
 
         dc.DrawGeometry(Brush("#484C50"), Pen("#080808", 1.8),
-            Geometry.Parse("M 11,17 L 21.5,21 L 21.5,27 L 11,31 Z"));
+            Geometry.Parse("M 11,16 L 22.5,22 L 22.5,26 L 11,32 Z"));
         dc.DrawGeometry(Brush("#484C50"), Pen("#080808", 1.8),
-            Geometry.Parse("M 37,17 L 26.5,21 L 26.5,27 L 37,31 Z"));
+            Geometry.Parse("M 37,16 L 25.5,22 L 25.5,26 L 37,32 Z"));
 
-        dc.DrawGeometry(Brush("#A0F030", 0.15), null,
-            Geometry.Parse("M 19,12 L 27,12 L 25.5,20 L 22.5,20 Z"));
+        dc.DrawGeometry(null, Pen("#080808", 1.8),
+            Geometry.Parse("M 17,11 L 31,11 L 25.5,22 L 22.5,22 Z"));
+        dc.DrawGeometry(null, Pen("#080808", 1.8),
+            Geometry.Parse("M 17,37 L 31,37 L 25.5,26 L 22.5,26 Z"));
 
         dc.DrawEllipse(null, Pen("#080808", 3.8), new Point(24, 24), 22.0, 22.0);
 
@@ -697,85 +693,78 @@ public sealed class CursorAssetGenerator
     private static void DrawAutobotCrest(DrawingContext dc)
     {
         var outer = Geometry.Parse(
-            "M 24,3 " +
-            "L 16,8 L 4,11 L 6,14 L 9,13 " +
-            "L 7,17 L 10,18 L 8,21 L 10,22 " +
-            "L 10,40 L 16,44 L 24,45 " +
-            "L 32,44 L 38,40 L 38,22 " +
-            "L 40,21 L 38,18 L 41,17 L 39,13 " +
-            "L 42,14 L 44,11 L 32,8 Z");
-        dc.DrawGeometry(Brush("#E02020"), Pen("#080808", 0.8), outer);
+            "M 24,2 " +
+            "L 14,8 L 2,13 L 11,17 " +
+            "L 11,42 L 17,46 L 31,46 L 37,42 " +
+            "L 37,17 L 46,13 L 34,8 Z");
+        dc.DrawGeometry(Brush("#E02020"), Pen("#080808", 1.0), outer);
 
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 24,7 L 19,15 L 22,15 L 24,10 L 26,15 L 29,15 Z"));
+            Geometry.Parse("M 24,8 L 19,14 L 21.5,14 L 24,10 L 26.5,14 L 29,14 Z"));
 
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 10,16 L 21,14.5 L 20,20 L 9,19 Z"));
+            Geometry.Parse("M 13,17 L 21,16 L 20,21 L 12,20 Z"));
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 38,16 L 27,14.5 L 28,20 L 39,19 Z"));
-
-        dc.DrawLine(Pen("#080808", 2.0), new Point(8, 22), new Point(19, 21));
-        dc.DrawLine(Pen("#080808", 2.0), new Point(8, 25.5), new Point(19, 24.5));
-        dc.DrawLine(Pen("#080808", 2.0), new Point(8, 29), new Point(19, 28));
-
-        dc.DrawLine(Pen("#080808", 2.0), new Point(40, 22), new Point(29, 21));
-        dc.DrawLine(Pen("#080808", 2.0), new Point(40, 25.5), new Point(29, 24.5));
-        dc.DrawLine(Pen("#080808", 2.0), new Point(40, 29), new Point(29, 28));
+            Geometry.Parse("M 35,17 L 27,16 L 28,21 L 36,20 Z"));
 
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 22,16 L 26,16 L 25.5,32 L 22.5,32 Z"));
+            Geometry.Parse("M 23,15 L 25,15 L 25,33 L 23,33 Z"));
+
+        dc.DrawLine(Pen("#080808", 1.8), new Point(11, 24), new Point(22, 23));
+        dc.DrawLine(Pen("#080808", 1.8), new Point(11, 27), new Point(22, 26));
+        dc.DrawLine(Pen("#080808", 1.8), new Point(11, 30), new Point(22, 29));
+
+        dc.DrawLine(Pen("#080808", 1.8), new Point(37, 24), new Point(26, 23));
+        dc.DrawLine(Pen("#080808", 1.8), new Point(37, 27), new Point(26, 26));
+        dc.DrawLine(Pen("#080808", 1.8), new Point(37, 30), new Point(26, 29));
 
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 14,31 L 22,30 L 21,35 L 14,35 Z"));
+            Geometry.Parse("M 14,33 L 22,32 L 21,37 L 14,37 Z"));
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 34,31 L 26,30 L 27,35 L 34,35 Z"));
+            Geometry.Parse("M 34,33 L 26,32 L 27,37 L 34,37 Z"));
 
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 17,36 L 31,36 L 29,40 L 19,40 Z"));
+            Geometry.Parse("M 18,38 L 30,38 L 29,42 L 19,42 Z"));
 
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 22,41 L 26,41 L 25,44 L 23,44 Z"));
+            Geometry.Parse("M 23,42.5 L 25,42.5 L 24.5,44 L 23.5,44 Z"));
     }
 
     private static void DrawDecepticonCrest(DrawingContext dc)
     {
         var outer = Geometry.Parse(
-            "M 17,2 L 24,8 L 31,2 " +
-            "L 38,6 L 44,10 L 42,13 " +
-            "L 40,15 L 42,17 L 40,19 " +
-            "L 38,22 L 36,30 " +
-            "L 32,36 L 24,46 " +
-            "L 16,36 L 12,30 L 10,22 " +
-            "L 8,19 L 6,17 L 8,15 " +
-            "L 6,13 L 4,10 L 10,6 Z");
-        dc.DrawGeometry(Brush("#6B2FA0"), Pen("#080808", 0.8), outer);
+            "M 15,2 L 24,10 L 33,2 " +
+            "L 42,8 L 38,16 " +
+            "L 38,24 L 34,32 " +
+            "L 24,46 " +
+            "L 14,32 L 10,24 " +
+            "L 10,16 L 6,8 Z");
+        dc.DrawGeometry(Brush("#6B2FA0"), Pen("#080808", 1.0), outer);
 
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 24,10 L 20,16 L 23,16 L 24,12.5 L 25,16 L 28,16 Z"));
+            Geometry.Parse("M 24,12 L 20,17 L 23,17 L 24,14 L 25,17 L 28,17 Z"));
 
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 9,16 L 21,15 L 20,21 L 8,19 Z"));
+            Geometry.Parse("M 12,19 L 21,18 L 20,23 L 11,22 Z"));
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 39,16 L 27,15 L 28,21 L 40,19 Z"));
-
-        dc.DrawLine(Pen("#080808", 2.0), new Point(7, 21), new Point(18, 20));
-        dc.DrawLine(Pen("#080808", 2.0), new Point(7, 24.5), new Point(18, 23.5));
-        dc.DrawLine(Pen("#080808", 2.0), new Point(8, 28), new Point(18, 27));
-
-        dc.DrawLine(Pen("#080808", 2.0), new Point(41, 21), new Point(30, 20));
-        dc.DrawLine(Pen("#080808", 2.0), new Point(41, 24.5), new Point(30, 23.5));
-        dc.DrawLine(Pen("#080808", 2.0), new Point(40, 28), new Point(30, 27));
+            Geometry.Parse("M 36,19 L 27,18 L 28,23 L 37,22 Z"));
 
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 22,17 L 26,17 L 25.5,29 L 22.5,29 Z"));
+            Geometry.Parse("M 23,18 L 25,18 L 25,30 L 23,30 Z"));
+
+        dc.DrawLine(Pen("#080808", 1.8), new Point(10, 25), new Point(22, 24));
+        dc.DrawLine(Pen("#080808", 1.8), new Point(11, 28), new Point(22, 27));
+
+        dc.DrawLine(Pen("#080808", 1.8), new Point(38, 25), new Point(26, 24));
+        dc.DrawLine(Pen("#080808", 1.8), new Point(37, 28), new Point(26, 27));
 
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 14,30 L 22,28 L 24,34 L 16,34 Z"));
+            Geometry.Parse("M 15,31 L 22,30 L 24,35 L 17,35 Z"));
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 34,30 L 26,28 L 24,34 L 32,34 Z"));
+            Geometry.Parse("M 33,31 L 26,30 L 24,35 L 31,35 Z"));
 
         dc.DrawGeometry(Brush("#080808"), null,
-            Geometry.Parse("M 20,36 L 28,36 L 24,44 Z"));
+            Geometry.Parse("M 21,37 L 27,37 L 24,44 Z"));
     }
 
     private static void DrawSheraSword(DrawingContext dc)
@@ -827,46 +816,53 @@ public sealed class CursorAssetGenerator
         dc.DrawEllipse(Brush("#F0D060", 0.10), null, new Point(24, 13), 18, 18);
         dc.DrawEllipse(Brush("#F0D060", 0.05), null, new Point(24, 13), 24, 24);
 
-        dc.DrawLine(Pen("#2A1808", 4.5), new Point(24, 19), new Point(24, 47));
-        dc.DrawLine(Pen("#6B4828", 3.2), new Point(24, 19), new Point(24, 47));
-        dc.DrawLine(Pen("#8B6840", 0.8, 0.5), new Point(23, 21), new Point(23, 46));
-        dc.DrawLine(Pen("#4A2818", 0.5, 0.4), new Point(25, 21), new Point(25, 46));
+        dc.DrawLine(Pen("#2A1808", 4.5), new Point(24, 20), new Point(24, 47));
+        dc.DrawLine(Pen("#6B4828", 3.2), new Point(24, 20), new Point(24, 47));
+        dc.DrawLine(Pen("#8B6840", 0.8, 0.5), new Point(23, 22), new Point(23, 46));
+        dc.DrawLine(Pen("#4A2818", 0.5, 0.4), new Point(25, 22), new Point(25, 46));
 
         var head = Geometry.Parse(
             "M 24,1 " +
-            "C 16,1 11,5 11,11 " +
-            "C 11,15 13,18 17,19 " +
-            "L 20,20 L 22,19.5 L 24,21 L 26,19.5 L 28,20 " +
-            "L 31,19 C 35,18 37,15 37,11 " +
-            "C 37,5 32,1 24,1 Z");
+            "C 15,1 10,5 10,12 " +
+            "C 10,16 13,19 17,20 " +
+            "L 20,21 L 22,20 L 24,22 L 26,20 L 28,21 " +
+            "L 31,20 C 35,19 38,16 38,12 " +
+            "C 38,5 33,1 24,1 Z");
         dc.DrawGeometry(Linear("#7A5830", "#4A3018", 0, 0, 1, 1), Pen("#1D100B", 1.3), head);
 
         dc.DrawGeometry(Linear("#B08850", "#8A6838", 0, 0, 1, 1), null,
             Geometry.Parse(
-                "M 24,3 C 18,3 14,6 14,10 " +
-                "C 14,14 17,17 21,17.5 " +
-                "L 24,16 L 27,17.5 " +
-                "C 31,17 34,14 34,10 " +
-                "C 34,6 30,3 24,3 Z"));
+                "M 24,3 C 17,3 13,6 13,11 " +
+                "C 13,15 16,18 20,18.5 " +
+                "L 24,17 L 28,18.5 " +
+                "C 32,18 35,15 35,11 " +
+                "C 35,6 31,3 24,3 Z"));
 
         dc.DrawGeometry(Brush("#C8A868"), Pen("#5A3820", 0.6),
             Geometry.Parse(
-                "M 15,7 C 15,5 17.5,4.5 20,6.5 " +
-                "C 21.5,8 21.5,11 18.5,11.5 " +
-                "C 16,11.5 15,9.5 15,7 Z"));
+                "M 14,7 C 14,4.5 17,4 20,6.5 " +
+                "C 22,8.5 22,12 19,12.5 " +
+                "C 16,12.5 14,10 14,7 Z"));
         dc.DrawGeometry(Brush("#C8A868"), Pen("#5A3820", 0.6),
             Geometry.Parse(
-                "M 33,7 C 33,5 30.5,4.5 28,6.5 " +
-                "C 26.5,8 26.5,11 29.5,11.5 " +
-                "C 32,11.5 33,9.5 33,7 Z"));
+                "M 34,7 C 34,4.5 31,4 28,6.5 " +
+                "C 26,8.5 26,12 29,12.5 " +
+                "C 32,12.5 34,10 34,7 Z"));
 
-        dc.DrawGeometry(Brush("#1D100B"), null,
-            Geometry.Parse("M 16.5,8 C 17,7 18.5,7 20,8 C 20,9.2 18,9.5 16.5,8 Z"));
-        dc.DrawGeometry(Brush("#1D100B"), null,
-            Geometry.Parse("M 31.5,8 C 31,7 29.5,7 28,8 C 28,9.2 30,9.5 31.5,8 Z"));
+        dc.DrawGeometry(Brush("#6A4020"), null,
+            Geometry.Parse(
+                "M 14,7 C 14,4.5 17,4 20,6.5 " +
+                "C 19,8 17,8.5 15,8 C 14,7.8 14,7.3 14,7 Z"));
+        dc.DrawGeometry(Brush("#6A4020"), null,
+            Geometry.Parse(
+                "M 34,7 C 34,4.5 31,4 28,6.5 " +
+                "C 29,8 31,8.5 33,8 C 34,7.8 34,7.3 34,7 Z"));
+
+        dc.DrawEllipse(Brush("#1D100B"), null, new Point(18, 10), 1.8, 1.2);
+        dc.DrawEllipse(Brush("#1D100B"), null, new Point(30, 10), 1.8, 1.2);
 
         dc.DrawGeometry(Brush("#4A3018"), null,
-            Geometry.Parse("M 22,12.5 L 26,12.5 L 24,15 Z"));
+            Geometry.Parse("M 22,13.5 L 26,13.5 L 24,16 Z"));
 
         dc.DrawEllipse(Brush("#F0D060", 0.14), null, new Point(24, 12), 14, 14);
     }
