@@ -14,29 +14,17 @@
                             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
     <Window.Resources>
-        <LinearGradientBrush x:Key="AppBackground" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#0A0D12" Offset="0" />
-            <GradientStop Color="#111827" Offset="0.55" />
-            <GradientStop Color="#15101B" Offset="1" />
-        </LinearGradientBrush>
-
-        <Style x:Key="PanelBorder" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource Panel}" />
-            <Setter Property="BorderBrush" Value="{StaticResource Stroke}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="8" />
-        </Style>
-
-        <Style x:Key="SectionTitle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="13" />
+        <Style x:Key="SectionLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
-            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="Margin" Value="0,0,0,10" />
         </Style>
 
-        <Style x:Key="ValueText" TargetType="TextBlock">
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
             <Setter Property="FontSize" Value="12" />
+            <Setter Property="Margin" Value="0,0,0,6" />
         </Style>
 
         <Style x:Key="ChromeButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
@@ -47,24 +35,24 @@
             <Setter Property="Margin" Value="0" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="Foreground" Value="{StaticResource TextMain}" />
+            <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
         </Style>
 
         <DataTemplate DataType="{x:Type models:CursorTheme}">
-            <Grid Margin="10" MinHeight="64">
+            <Grid Margin="10,8" MinHeight="48">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="58" />
+                    <ColumnDefinition Width="44" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Border Width="48" Height="48" Background="#0A0D12" BorderBrush="#2C384B" BorderThickness="1" CornerRadius="8">
-                    <Image Source="{Binding PreviewPath}" Stretch="Uniform" Margin="6" RenderOptions.BitmapScalingMode="HighQuality" />
+                <Border Width="36" Height="36" Background="#0D1117" CornerRadius="8">
+                    <Image Source="{Binding PreviewPath}" Stretch="Uniform" Margin="4" RenderOptions.BitmapScalingMode="HighQuality" />
                 </Border>
-                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="2,0,0,0">
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="15" />
-                        <Border Background="#163729" BorderBrush="#42D18C" BorderThickness="1" CornerRadius="5" Padding="6,1" Margin="8,0,0,0">
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" />
+                        <Border Background="#0D2818" BorderBrush="#238636" BorderThickness="1" CornerRadius="4" Padding="5,1" Margin="6,0,0,0">
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="Visibility" Value="Collapsed" />
@@ -75,288 +63,232 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
-                            <TextBlock Text="ON" Foreground="#88F3B3" FontSize="10" FontWeight="Bold" />
+                            <TextBlock Text="ON" Foreground="#3FB950" FontSize="9" FontWeight="Bold" />
                         </Border>
                     </StackPanel>
-                    <TextBlock Text="{Binding Category}" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,3,0,0" />
+                    <TextBlock Text="{Binding Category}" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,2,0,0" />
                 </StackPanel>
             </Grid>
         </DataTemplate>
     </Window.Resources>
 
-    <Grid Background="{StaticResource AppBackground}">
+    <Grid Background="#0D1117">
         <Grid.RowDefinitions>
             <RowDefinition Height="38" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="28" />
         </Grid.RowDefinitions>
 
-        <Border Background="#0A0D12"
-                BorderBrush="#202B3D"
+        <!-- Title bar -->
+        <Border Background="#010409"
+                BorderBrush="#21262D"
                 BorderThickness="0,0,0,1"
                 MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
-                    <Image Source="{StaticResource AppMark}" Width="22" Height="22" Margin="0,0,9,0" />
-                    <TextBlock Text="Cursor Magic" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="-" Style="{StaticResource ChromeButton}" Click="MinimizeButton_Click" />
-                    <Button x:Name="MaximizeButton" Content="[]" Style="{StaticResource ChromeButton}" Click="MaximizeButton_Click" />
-                    <Button Content="X" Style="{StaticResource ChromeButton}" Click="CloseButton_Click" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Content="&#x2013;" Style="{StaticResource ChromeButton}" Click="MinimizeButton_Click" />
+                    <Button x:Name="MaximizeButton" Content="&#x25A1;" Style="{StaticResource ChromeButton}" Click="MaximizeButton_Click" />
+                    <Button Content="&#x2715;" Style="{StaticResource ChromeButton}" Click="CloseButton_Click" />
                 </StackPanel>
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1" Margin="22">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <!-- Main content with sidebar -->
+        <TabControl Grid.Row="1" TabStripPlacement="Left">
 
-            <Border Style="{StaticResource PanelBorder}" Padding="20" Margin="0,0,0,18">
-                <Grid>
+            <!-- LIBRARY TAB -->
+            <TabItem Header="Library">
+                <Grid Margin="24,20,24,20" Background="#0D1117">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <TextBlock Text="Cursor Magic" FontSize="30" FontWeight="Bold" />
-                        <TextBlock Text="Windows cursor themes with tuned click effects" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0" />
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <CheckBox x:Name="PauseEffectsCheckBox" Content="Pause effects" Margin="0,0,18,0" Checked="PauseEffects_Changed" Unchecked="PauseEffects_Changed" />
-                        <CheckBox x:Name="StartWithWindowsCheckBox" Content="Start with Windows" Margin="0,0,18,0" Checked="StartWithWindows_Changed" Unchecked="StartWithWindows_Changed" />
-                        <CheckBox x:Name="RestoreOnExitCheckBox" Content="Restore on exit" Margin="0,0,18,0" Checked="RestoreOnExit_Changed" Unchecked="RestoreOnExit_Changed" />
-                        <Button Content="Restore defaults" Click="RestoreDefaults_Click" />
-                    </StackPanel>
-                </Grid>
-            </Border>
 
-            <TabControl Grid.Row="1">
-                <TabItem Header="Library">
-                    <Grid Margin="0,18,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="350" />
-                            <ColumnDefinition Width="20" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                    <!-- Theme list -->
+                    <ListBox x:Name="ThemesListBox" SelectionChanged="ThemesListBox_SelectionChanged" Margin="0,0,20,0" />
 
-                        <Border Style="{StaticResource PanelBorder}" Padding="14">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Themes" FontSize="18" FontWeight="SemiBold" Margin="4,0,0,14" />
-                                <ListBox Grid.Row="1" x:Name="ThemesListBox" SelectionChanged="ThemesListBox_SelectionChanged" />
-                            </Grid>
-                        </Border>
+                    <!-- Details panel -->
+                    <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <!-- Preview image -->
+                            <Border Width="180" Height="180" Background="#010409" CornerRadius="12" HorizontalAlignment="Left">
+                                <Image x:Name="ThemePreviewImage" Stretch="Uniform" Margin="20" RenderOptions.BitmapScalingMode="HighQuality" />
+                            </Border>
 
-                        <Border Grid.Column="2" Style="{StaticResource PanelBorder}" Padding="28">
+                            <!-- Category badge -->
+                            <Border HorizontalAlignment="Left" Background="#0D2D3D" CornerRadius="4" Padding="8,3" Margin="0,20,0,0">
+                                <TextBlock x:Name="ThemeCategoryText" Foreground="{StaticResource Accent}" FontSize="11" FontWeight="SemiBold" />
+                            </Border>
+
+                            <!-- Name + active badge -->
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,4">
+                                <TextBlock x:Name="ThemeNameText" FontSize="26" FontWeight="Bold" />
+                                <Border x:Name="ActiveThemeBadge" Background="#0D2818" BorderBrush="#238636" BorderThickness="1" CornerRadius="6" Padding="8,3" Margin="12,6,0,0" Visibility="Collapsed">
+                                    <TextBlock Text="ACTIVE" Foreground="#3FB950" FontSize="10" FontWeight="Bold" />
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Description -->
+                            <TextBlock x:Name="ThemeDescriptionText" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" FontSize="13" MaxWidth="480" HorizontalAlignment="Left" />
+
+                            <!-- Action buttons -->
+                            <WrapPanel Margin="0,20,0,0">
+                                <Button Content="Apply" Background="{StaticResource AccentPink}" BorderBrush="#FF8AC8" Click="ApplyTheme_Click" />
+                                <Button Content="Preview" Click="PreviewEffect_Click" />
+                                <Button Content="Export" Click="ExportTheme_Click" />
+                                <Button Content="Import" Click="ImportTheme_Click" />
+                            </WrapPanel>
+
+                            <!-- Customization section -->
+                            <TextBlock Text="CUSTOMIZATION" Style="{StaticResource SectionLabel}" Margin="0,28,0,10" />
+
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="270" />
+                                    <ColumnDefinition Width="200" />
+                                    <ColumnDefinition Width="24" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
+
                                 <StackPanel>
-                                    <Border Width="230" Height="230" Background="#090C11" BorderBrush="#2C384B" BorderThickness="1" CornerRadius="8">
-                                        <Image x:Name="ThemePreviewImage" Stretch="Uniform" Margin="24" RenderOptions.BitmapScalingMode="HighQuality" />
-                                    </Border>
-                                    <WrapPanel Margin="0,22,0,0">
-                                        <Button Content="Apply" Background="{StaticResource AccentPink}" BorderBrush="#FF8AC8" Click="ApplyTheme_Click" />
-                                        <Button Content="Preview" Click="PreviewEffect_Click" />
-                                        <Button Content="Export pack" Click="ExportTheme_Click" />
-                                        <Button Content="Import pack" Click="ImportTheme_Click" />
-                                    </WrapPanel>
+                                    <TextBlock Text="Animation" Style="{StaticResource FieldLabel}" />
+                                    <ComboBox x:Name="ThemeEffectComboBox" SelectionChanged="ThemeEffectComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="Theme default" />
+                                        <ComboBoxItem Content="Star Wand" />
+                                        <ComboBoxItem Content="Sparkles" />
+                                        <ComboBoxItem Content="Hearts" />
+                                        <ComboBoxItem Content="Rings" />
+                                        <ComboBoxItem Content="Fireflies" />
+                                    </ComboBox>
+                                    <TextBlock Text="Theme color" Style="{StaticResource FieldLabel}" Margin="0,14,0,6" />
+                                    <ComboBox x:Name="ThemeColorComboBox" SelectionChanged="ThemeColorComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="Cyan" Tag="#55F7FF" />
+                                        <ComboBoxItem Content="Green" Tag="#5DFF59" />
+                                        <ComboBoxItem Content="Blue" Tag="#4A67FF" />
+                                        <ComboBoxItem Content="Purple" Tag="#A673FF" />
+                                        <ComboBoxItem Content="Red" Tag="#FF3333" />
+                                        <ComboBoxItem Content="Gold" Tag="#FFD45E" />
+                                        <ComboBoxItem Content="White" Tag="#FFFFFF" />
+                                    </ComboBox>
                                 </StackPanel>
 
-                                <Grid Grid.Column="1" Margin="10,0,0,0">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-                                    <StackPanel>
-                                        <Border HorizontalAlignment="Left" Background="#17263A" BorderBrush="#365675" BorderThickness="1" CornerRadius="7" Padding="10,4">
-                                            <TextBlock x:Name="ThemeCategoryText" Foreground="{StaticResource Accent}" FontSize="12" FontWeight="SemiBold" />
-                                        </Border>
-                                        <StackPanel Orientation="Horizontal" Margin="0,14,0,4">
-                                            <TextBlock x:Name="ThemeNameText" FontSize="34" FontWeight="Bold" />
-                                            <Border x:Name="ActiveThemeBadge" Background="#163729" BorderBrush="#42D18C" BorderThickness="1" CornerRadius="7" Padding="10,4" Margin="14,9,0,0" Visibility="Collapsed">
-                                                <TextBlock Text="ACTIVE" Foreground="#88F3B3" FontSize="12" FontWeight="Bold" />
-                                            </Border>
-                                        </StackPanel>
-                                        <TextBlock x:Name="ThemeDescriptionText" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" FontSize="15" MaxWidth="590" />
-                                    </StackPanel>
-
-                                    <Grid Grid.Row="1" Margin="0,26,0,0">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
-
-                                        <Border Background="{StaticResource PanelAlt}" BorderBrush="{StaticResource Stroke}" BorderThickness="1" CornerRadius="8" Padding="18">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="220" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel>
-                                                    <TextBlock Text="Animation" Style="{StaticResource SectionTitle}" />
-                                                    <ComboBox x:Name="ThemeEffectComboBox" SelectionChanged="ThemeEffectComboBox_SelectionChanged">
-                                                        <ComboBoxItem Content="Theme default" />
-                                                        <ComboBoxItem Content="Star Wand" />
-                                                        <ComboBoxItem Content="Sparkles" />
-                                                        <ComboBoxItem Content="Hearts" />
-                                                        <ComboBoxItem Content="Rings" />
-                                                        <ComboBoxItem Content="Fireflies" />
-                                                    </ComboBox>
-                                                    <TextBlock Text="Theme color" Style="{StaticResource SectionTitle}" Margin="0,16,0,8" />
-                                                    <ComboBox x:Name="ThemeColorComboBox" SelectionChanged="ThemeColorComboBox_SelectionChanged">
-                                                        <ComboBoxItem Content="Cyan" Tag="#55F7FF" />
-                                                        <ComboBoxItem Content="Green" Tag="#5DFF59" />
-                                                        <ComboBoxItem Content="Blue" Tag="#4A67FF" />
-                                                        <ComboBoxItem Content="Purple" Tag="#A673FF" />
-                                                        <ComboBoxItem Content="Red" Tag="#FF3333" />
-                                                        <ComboBoxItem Content="Gold" Tag="#FFD45E" />
-                                                        <ComboBoxItem Content="White" Tag="#FFFFFF" />
-                                                    </ComboBox>
-                                                </StackPanel>
-                                                <StackPanel Grid.Column="1" Margin="24,0,0,0">
-                                                    <TextBlock Text="{Binding ElementName=AnimationSizeSlider, Path=Value, StringFormat=Size {0:0.00}x}" Style="{StaticResource SectionTitle}" />
-                                                    <Slider x:Name="AnimationSizeSlider" Minimum="0.45" Maximum="2" Value="1" TickFrequency="0.05" ValueChanged="AnimationSlider_Changed" />
-                                                    <TextBlock Text="{Binding ElementName=AnimationBrightnessSlider, Path=Value, StringFormat=Brightness {0:0.00}x}" Style="{StaticResource SectionTitle}" Margin="0,16,0,8" />
-                                                    <Slider x:Name="AnimationBrightnessSlider" Minimum="0.35" Maximum="1.8" Value="1" TickFrequency="0.05" ValueChanged="AnimationSlider_Changed" />
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-
-                                        <Border Grid.Row="1" Background="#0E151F" BorderBrush="#263345" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,18,0,0">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <Border Width="8" Height="36" Background="{StaticResource AccentGold}" CornerRadius="4" Margin="0,0,14,0" />
-                                                <StackPanel Grid.Column="1">
-                                                    <TextBlock Text="Compatibility guard" FontWeight="SemiBold" />
-                                                    <TextBlock Text="Effects pause over fullscreen and blocklisted apps." Foreground="{StaticResource TextMuted}" Margin="0,4,0,0" />
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </TabItem>
-
-                <TabItem Header="Creator">
-                    <Grid Margin="0,18,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="390" />
-                            <ColumnDefinition Width="20" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <Border Style="{StaticResource PanelBorder}" Padding="22">
-                            <StackPanel>
-                                <TextBlock Text="Create" FontSize="22" FontWeight="Bold" Margin="0,0,0,18" />
-                                <TextBlock Text="Theme name" Style="{StaticResource SectionTitle}" />
-                                <TextBox x:Name="CreatorNameTextBox" Text="My Custom Cursor" Margin="0,0,0,16" />
-                                <Button Content="Import image" Click="ImportImage_Click" HorizontalAlignment="Left" Margin="0,0,0,10" />
-                                <TextBlock x:Name="ImportedImageText" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" Margin="0,0,0,18" />
-
-                                <TextBlock Text="{Binding ElementName=HotspotXSlider, Path=Value, StringFormat=Hotspot X {0:0}}" Style="{StaticResource SectionTitle}" />
-                                <Slider x:Name="HotspotXSlider" Minimum="0" Maximum="47" Value="4" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="CreatorPreview_Changed" />
-                                <TextBlock Text="{Binding ElementName=HotspotYSlider, Path=Value, StringFormat=Hotspot Y {0:0}}" Style="{StaticResource SectionTitle}" Margin="0,16,0,8" />
-                                <Slider x:Name="HotspotYSlider" Minimum="0" Maximum="47" Value="4" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="CreatorPreview_Changed" />
-
-                                <TextBlock Text="Click effect" Style="{StaticResource SectionTitle}" Margin="0,18,0,8" />
-                                <ComboBox x:Name="EffectComboBox" SelectedIndex="0" Margin="0,0,0,16">
-                                    <ComboBoxItem Content="Sparkles" />
-                                    <ComboBoxItem Content="Hearts" />
-                                    <ComboBoxItem Content="Rings" />
-                                    <ComboBoxItem Content="Fireflies" />
-                                </ComboBox>
-                                <TextBlock Text="Accent layer" Style="{StaticResource SectionTitle}" />
-                                <ComboBox x:Name="DecorationComboBox" SelectedIndex="0" Margin="0,0,0,24" SelectionChanged="CreatorPreview_Changed">
-                                    <ComboBoxItem Content="None" />
-                                    <ComboBoxItem Content="Star" />
-                                    <ComboBoxItem Content="Heart" />
-                                    <ComboBoxItem Content="Ring" />
-                                </ComboBox>
-                                <Button Content="Save theme" Background="{StaticResource AccentPink}" BorderBrush="#FF8AC8" Click="SaveCustomTheme_Click" HorizontalAlignment="Left" />
-                            </StackPanel>
-                        </Border>
-
-                        <Border Grid.Column="2" Style="{StaticResource PanelBorder}" Padding="28">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Preview" FontSize="22" FontWeight="Bold" />
-                                <Grid Grid.Row="1" Margin="0,22,0,0">
-                                    <Border Width="360" Height="360" Background="#090C11" BorderBrush="#2C384B" BorderThickness="1" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                        <Grid>
-                                            <Image x:Name="CreatorPreviewImage" Stretch="Uniform" Margin="52" RenderOptions.BitmapScalingMode="HighQuality" />
-                                            <Canvas x:Name="HotspotCanvas">
-                                                <Ellipse Width="12" Height="12" Stroke="#FFD45E" StrokeThickness="2" Fill="#33000000" />
-                                                <Line X1="-8" Y1="0" X2="20" Y2="0" Stroke="#FFD45E" StrokeThickness="1" />
-                                                <Line X1="6" Y1="-8" X2="6" Y2="20" Stroke="#FFD45E" StrokeThickness="1" />
-                                            </Canvas>
-                                        </Grid>
-                                    </Border>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </TabItem>
-
-                <TabItem Header="Compatibility">
-                    <Grid Margin="0,18,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="430" />
-                            <ColumnDefinition Width="20" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <Border Style="{StaticResource PanelBorder}" Padding="22">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Blocklist" FontSize="22" FontWeight="Bold" Margin="0,0,0,18" />
-                                <ListBox Grid.Row="1" x:Name="BlocklistBox" />
-                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,18,0,0">
-                                    <Button Content="Suspend current app" Click="SuspendCurrentApp_Click" />
-                                    <Button Content="Remove selected" Click="RemoveBlockedApp_Click" />
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="{Binding ElementName=AnimationSizeSlider, Path=Value, StringFormat=Size {0:0.00}x}" Style="{StaticResource FieldLabel}" />
+                                    <Slider x:Name="AnimationSizeSlider" Minimum="0.45" Maximum="2" Value="1" TickFrequency="0.05" ValueChanged="AnimationSlider_Changed" />
+                                    <TextBlock Text="{Binding ElementName=AnimationBrightnessSlider, Path=Value, StringFormat=Brightness {0:0.00}x}" Style="{StaticResource FieldLabel}" Margin="0,14,0,6" />
+                                    <Slider x:Name="AnimationBrightnessSlider" Minimum="0.35" Maximum="1.8" Value="1" TickFrequency="0.05" ValueChanged="AnimationSlider_Changed" />
                                 </StackPanel>
                             </Grid>
-                        </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
 
-                        <Border Grid.Column="2" Style="{StaticResource PanelBorder}" Padding="28">
-                            <StackPanel>
-                                <TextBlock Text="Foreground app" FontSize="22" FontWeight="Bold" />
-                                <TextBlock x:Name="ForegroundAppText" FontSize="38" FontWeight="SemiBold" Margin="0,18,0,0" />
-                                <TextBlock x:Name="FullscreenText" Foreground="{StaticResource TextMuted}" Margin="0,8,0,22" />
-                                <Button Content="Refresh status" Click="RefreshForeground_Click" HorizontalAlignment="Left" />
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                </TabItem>
-            </TabControl>
+            <!-- CREATOR TAB -->
+            <TabItem Header="Creator">
+                <Grid Margin="24,20,24,20" Background="#0D1117">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="360" />
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-            <Border Grid.Row="2" Style="{StaticResource PanelBorder}" Padding="13" Margin="0,18,0,0">
-                <TextBlock x:Name="StatusText" Foreground="{StaticResource TextMuted}" />
-            </Border>
-        </Grid>
+                    <!-- Form panel -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <TextBlock Text="CREATE THEME" Style="{StaticResource SectionLabel}" />
+                            <TextBlock Text="Theme name" Style="{StaticResource FieldLabel}" />
+                            <TextBox x:Name="CreatorNameTextBox" Text="My Custom Cursor" Margin="0,0,0,16" />
+                            <Button Content="Import image" Click="ImportImage_Click" HorizontalAlignment="Left" Margin="0,0,0,8" />
+                            <TextBlock x:Name="ImportedImageText" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,20" />
+
+                            <TextBlock Text="{Binding ElementName=HotspotXSlider, Path=Value, StringFormat=Hotspot X {0:0}}" Style="{StaticResource FieldLabel}" />
+                            <Slider x:Name="HotspotXSlider" Minimum="0" Maximum="47" Value="4" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="CreatorPreview_Changed" />
+                            <TextBlock Text="{Binding ElementName=HotspotYSlider, Path=Value, StringFormat=Hotspot Y {0:0}}" Style="{StaticResource FieldLabel}" Margin="0,14,0,6" />
+                            <Slider x:Name="HotspotYSlider" Minimum="0" Maximum="47" Value="4" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="CreatorPreview_Changed" />
+
+                            <TextBlock Text="Click effect" Style="{StaticResource FieldLabel}" Margin="0,18,0,6" />
+                            <ComboBox x:Name="EffectComboBox" SelectedIndex="0" Margin="0,0,0,14">
+                                <ComboBoxItem Content="Sparkles" />
+                                <ComboBoxItem Content="Hearts" />
+                                <ComboBoxItem Content="Rings" />
+                                <ComboBoxItem Content="Fireflies" />
+                            </ComboBox>
+                            <TextBlock Text="Accent layer" Style="{StaticResource FieldLabel}" />
+                            <ComboBox x:Name="DecorationComboBox" SelectedIndex="0" Margin="0,0,0,24" SelectionChanged="CreatorPreview_Changed">
+                                <ComboBoxItem Content="None" />
+                                <ComboBoxItem Content="Star" />
+                                <ComboBoxItem Content="Heart" />
+                                <ComboBoxItem Content="Ring" />
+                            </ComboBox>
+                            <Button Content="Save theme" Background="{StaticResource AccentPink}" BorderBrush="#FF8AC8" Click="SaveCustomTheme_Click" HorizontalAlignment="Left" />
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Preview panel -->
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="PREVIEW" Style="{StaticResource SectionLabel}" />
+                        <Border Width="320" Height="320" Background="#010409" CornerRadius="12" HorizontalAlignment="Left">
+                            <Grid>
+                                <Image x:Name="CreatorPreviewImage" Stretch="Uniform" Margin="48" RenderOptions.BitmapScalingMode="HighQuality" />
+                                <Canvas x:Name="HotspotCanvas">
+                                    <Ellipse Width="12" Height="12" Stroke="#FFD45E" StrokeThickness="2" Fill="#33000000" />
+                                    <Line X1="-8" Y1="0" X2="20" Y2="0" Stroke="#FFD45E" StrokeThickness="1" />
+                                    <Line X1="6" Y1="-8" X2="6" Y2="20" Stroke="#FFD45E" StrokeThickness="1" />
+                                </Canvas>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- SETTINGS TAB -->
+            <TabItem Header="Settings">
+                <Grid Margin="24,20,24,20" Background="#0D1117">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="400" />
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                        <!-- General section -->
+                        <TextBlock Text="GENERAL" Style="{StaticResource SectionLabel}" />
+                        <CheckBox x:Name="PauseEffectsCheckBox" Content="Pause click effects" Margin="0,0,0,12" Checked="PauseEffects_Changed" Unchecked="PauseEffects_Changed" />
+                        <CheckBox x:Name="StartWithWindowsCheckBox" Content="Start with Windows" Margin="0,0,0,12" Checked="StartWithWindows_Changed" Unchecked="StartWithWindows_Changed" />
+                        <CheckBox x:Name="RestoreOnExitCheckBox" Content="Restore cursors on exit" Margin="0,0,0,16" Checked="RestoreOnExit_Changed" Unchecked="RestoreOnExit_Changed" />
+                        <Button Content="Restore defaults" Click="RestoreDefaults_Click" HorizontalAlignment="Left" Margin="0,0,0,32" />
+
+                        <!-- Blocklist section -->
+                        <TextBlock Text="APP BLOCKLIST" Style="{StaticResource SectionLabel}" />
+                        <TextBlock Text="Effects pause over fullscreen and blocklisted apps." Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,0,0,10" />
+                        <Border Background="#010409" CornerRadius="8" Padding="4" Height="220">
+                            <ListBox x:Name="BlocklistBox" />
+                        </Border>
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <Button Content="Suspend current app" Click="SuspendCurrentApp_Click" />
+                            <Button Content="Remove selected" Click="RemoveBlockedApp_Click" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Foreground app info -->
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="FOREGROUND APP" Style="{StaticResource SectionLabel}" />
+                        <TextBlock x:Name="ForegroundAppText" FontSize="32" FontWeight="SemiBold" Margin="0,4,0,0" />
+                        <TextBlock x:Name="FullscreenText" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,8,0,20" />
+                        <Button Content="Refresh status" Click="RefreshForeground_Click" HorizontalAlignment="Left" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- Status bar -->
+        <Border Grid.Row="2" Background="#010409" BorderBrush="#21262D" BorderThickness="0,1,0,0" Padding="14,0">
+            <TextBlock x:Name="StatusText" Foreground="#484F58" FontSize="11" VerticalAlignment="Center" />
+        </Border>
     </Grid>
 </Window>
