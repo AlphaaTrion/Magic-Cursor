@@ -1,0 +1,52 @@
+name: Release Windows EXE
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore Windows runtime packs
+        run: dotnet restore CursorMagic.csproj -r win-x64 --source https://api.nuget.org/v3/index.json
+
+      - name: Publish single-file app
+        run: >
+          dotnet publish CursorMagic.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          --no-restore
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:DebugType=none
+          -p:DebugSymbols=false
+          -o artifacts\publish
+
+      - name: Name release asset
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts\release
+          Move-Item artifacts\publish\CursorMagic.exe artifacts\release\CursorMagic-win-x64.exe
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Cursor Magic ${{ github.ref_name }}
+          files: artifacts/release/CursorMagic-win-x64.exe
+          generate_release_notes: true
