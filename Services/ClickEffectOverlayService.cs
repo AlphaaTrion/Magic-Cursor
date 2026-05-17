@@ -166,13 +166,23 @@ public sealed class ClickEffectOverlayService : IDisposable
 
         var effect = CurrentEffect;
         var animationScale = Math.Clamp(Settings.AnimationScale <= 0 ? 1 : Settings.AnimationScale, 0.45, 2.0);
+        var isTrail = effect.Type.Contains("Trail", StringComparison.OrdinalIgnoreCase);
         for (var i = 0; i < Math.Max(1, effect.ParticleCount); i++)
         {
-            var angle = (Math.PI * 2 / effect.ParticleCount) * i + _random.NextDouble() * 0.45;
+            double angle;
+            if (isTrail)
+            {
+                angle = Math.PI / 2 + (_random.NextDouble() - 0.5) * 0.6;
+            }
+            else
+            {
+                angle = (Math.PI * 2 / effect.ParticleCount) * i + _random.NextDouble() * 0.45;
+            }
+
             var distance = effect.Radius * animationScale * (0.45 + _random.NextDouble() * 0.55);
             var element = CreateParticleElement(effect, i);
-            Canvas.SetLeft(element, x);
-            Canvas.SetTop(element, y);
+            Canvas.SetLeft(element, x - element.Width / 2);
+            Canvas.SetTop(element, y - element.Height / 2);
             _window.Layer.Children.Add(element);
             _particles.Add(new Particle
             {
@@ -194,6 +204,77 @@ public sealed class ClickEffectOverlayService : IDisposable
         var primary = Brush(effect.PrimaryColor);
         var secondary = Brush(effect.SecondaryColor);
         var brush = index % 2 == 0 ? primary : secondary;
+
+        if (effect.Type.Contains("Glow", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Ellipse
+            {
+                Width = 30 * animationScale,
+                Height = 30 * animationScale,
+                Fill = primary,
+                Opacity = 0.6,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new ScaleTransform(0.3, 0.3)
+            };
+        }
+
+        if (effect.Type.Contains("Slash", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Path
+            {
+                Data = Geometry.Parse("M -10,-2 Q 0,-12 10,-2 Q 0,-6 -10,-2 Z"),
+                Fill = brush,
+                Stroke = secondary,
+                StrokeThickness = 0.6 * animationScale,
+                Width = 22 * animationScale,
+                Height = 14 * animationScale,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.5, 0.5),
+                        new RotateTransform()
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Pulse", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Ellipse
+            {
+                Width = 20 * animationScale,
+                Height = 20 * animationScale,
+                Stroke = primary,
+                StrokeThickness = 2.5 * animationScale,
+                Fill = Brushes.Transparent,
+                Opacity = 0.8,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new ScaleTransform(0.2, 0.2)
+            };
+        }
+
+        if (effect.Type.Contains("Trail", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Border
+            {
+                Width = 3 * animationScale,
+                Height = 24 * animationScale,
+                CornerRadius = new CornerRadius(1.5 * animationScale),
+                Background = brush,
+                Opacity = 0.85,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.6, 0.6),
+                        new RotateTransform()
+                    }
+                }
+            };
+        }
 
         if (effect.Type.Contains("Saber", StringComparison.OrdinalIgnoreCase))
         {

@@ -18,7 +18,7 @@ public sealed class CursorAssetGenerator
     private const int LogicalSize = 48;
     private const int CursorPixelSize = 128;
     private const int PreviewPixelSize = 512;
-    private const string AssetRevision = "q19";
+    private const string AssetRevision = "q20";
 
     private static readonly string[] ThemeRoles =
     [
@@ -1171,18 +1171,18 @@ public sealed class CursorAssetGenerator
         new("sketch-pen", "Sketch Pen", "Hand-drawn pen nib cursor with a red mark.", "Creative", 7, 4, new ClickEffect { Type = "Sparkles", PrimaryColor = "#202124", SecondaryColor = "#F0624D", ParticleCount = 6, Radius = 24, DurationMs = 480 }),
         new("candy-bolt", "Candy Bolt", "Bright lightning cursor with candy stripes.", "Playful", 21, 3, new ClickEffect { Type = "Sparkles", PrimaryColor = "#FFE46A", SecondaryColor = "#F25AAE", ParticleCount = 9, Radius = 30, DurationMs = 530 }),
         new("minimal-crosshair", "Minimal Crosshair", "Precision ring cursor for focused work.", "Utility", 24, 24, new ClickEffect { Type = "Rings", PrimaryColor = "#202124", SecondaryColor = "#55F7FF", ParticleCount = 4, Radius = 24, DurationMs = 450 }),
-        new("lightsaber", "Lightsaber", "A glowing saber pointer with configurable blade color.", "Sci-Fi", 5, 5, new ClickEffect { Type = "Saber Sparks", PrimaryColor = "#55F7FF", SecondaryColor = "#FFFFFF", ParticleCount = 10, Radius = 34, DurationMs = 430 }, "#55F7FF"),
-        new("hero-sword", "Sword of Daylight", "An asymmetric cyan blade cursor with crescent cutout and rune channel.", "Fantasy", 24, 1, new ClickEffect { Type = "Blade Glints", PrimaryColor = "#DCE7F2", SecondaryColor = "#5FE2EF", ParticleCount = 8, Radius = 28, DurationMs = 470 }),
-        new("eclipse-sword", "Sword of Eclipse", "A dark obsidian blade cursor with red energy veins and rune channel.", "Fantasy", 24, 1, new ClickEffect { Type = "Cursed Sparks", PrimaryColor = "#FF123A", SecondaryColor = "#7E0A18", ParticleCount = 9, Radius = 28, DurationMs = 520 }),
-        new("omnitrix", "Omnitrix", "A green alien-tech emblem cursor with pulse rings.", "Sci-Fi", 24, 24, new ClickEffect { Type = "Rings", PrimaryColor = "#B8FF2F", SecondaryColor = "#2DFF7A", ParticleCount = 6, Radius = 30, DurationMs = 520 }),
+        new("lightsaber", "Lightsaber", "A glowing saber pointer with configurable blade color.", "Sci-Fi", 5, 5, new ClickEffect { Type = "Saber Glow", PrimaryColor = "#55F7FF", SecondaryColor = "#FFFFFF", ParticleCount = 5, Radius = 12, DurationMs = 380 }, "#55F7FF"),
+        new("hero-sword", "Sword of Daylight", "An asymmetric cyan blade cursor with crescent cutout and rune channel.", "Fantasy", 24, 1, new ClickEffect { Type = "Blade Slash", PrimaryColor = "#DCE7F2", SecondaryColor = "#5FE2EF", ParticleCount = 6, Radius = 22, DurationMs = 350 }),
+        new("eclipse-sword", "Sword of Eclipse", "A dark obsidian blade cursor with red energy veins and rune channel.", "Fantasy", 24, 1, new ClickEffect { Type = "Blade Slash", PrimaryColor = "#FF123A", SecondaryColor = "#7E0A18", ParticleCount = 6, Radius = 22, DurationMs = 350 }),
+        new("omnitrix", "Omnitrix", "A green alien-tech emblem cursor with pulse rings.", "Sci-Fi", 24, 24, new ClickEffect { Type = "Omnitrix Pulse", PrimaryColor = "#FF2020", SecondaryColor = "#FF4040", ParticleCount = 4, Radius = 16, DurationMs = 420 }),
         new("tardis", "TARDIS", "A compact blue police box cursor with timey glow pulses.", "Sci-Fi", 10, 7, new ClickEffect { Type = "Rings", PrimaryColor = "#4A67FF", SecondaryColor = "#FFFFFF", ParticleCount = 6, Radius = 32, DurationMs = 580 }),
         new("autobot-crest", "Autobot Crest", "A red-and-silver robot faction crest inspired cursor.", "Robots", 24, 4, new ClickEffect { Type = "Energon Sparks", PrimaryColor = "#F04B4B", SecondaryColor = "#D8DEE8", ParticleCount = 9, Radius = 30, DurationMs = 500 }),
         new("decepticon-crest", "Decepticon Crest", "A purple angular robot faction crest inspired cursor.", "Robots", 24, 4, new ClickEffect { Type = "Energon Sparks", PrimaryColor = "#A673FF", SecondaryColor = "#3A234F", ParticleCount = 9, Radius = 30, DurationMs = 500 }),
         new("shera-sword", "Sword of Protection", "A crystal-and-gold heroic sword cursor.", "Fantasy", 24, 2, new ClickEffect { Type = "Sparkles", PrimaryColor = "#BDEFFF", SecondaryColor = "#F2C453", ParticleCount = 11, Radius = 34, DurationMs = 620 }),
         new("ancient-staff", "Ancient Staff", "A carved wooden staff cursor with warm magic motes.", "Fantasy", 31, 6, new ClickEffect { Type = "Fireflies", PrimaryColor = "#C58C58", SecondaryColor = "#F2C453", ParticleCount = 8, Radius = 30, DurationMs = 620 }),
         new("starfleet-delta", "Starfleet Delta", "A clean gold delta insignia cursor with scanner rings.", "Sci-Fi", 24, 3, new ClickEffect { Type = "Rings", PrimaryColor = "#F2D36B", SecondaryColor = "#5FE2EF", ParticleCount = 5, Radius = 26, DurationMs = 500 }),
-        new("starship", "Starship", "A tiny silver starship cursor with engine-pink sparks.", "Sci-Fi", 13, 13, new ClickEffect { Type = "Warp Sparks", PrimaryColor = "#5FE2EF", SecondaryColor = "#F25AAE", ParticleCount = 10, Radius = 36, DurationMs = 520 }),
-        new("dark-one-dagger", "Dark One Dagger", "A dark ornate dagger cursor with red cursed glints.", "Fantasy", 24, 5, new ClickEffect { Type = "Cursed Sparks", PrimaryColor = "#A6192E", SecondaryColor = "#D9DEE5", ParticleCount = 7, Radius = 24, DurationMs = 560 })
+        new("starship", "Starship", "A tiny silver starship cursor with engine-pink sparks.", "Sci-Fi", 13, 13, new ClickEffect { Type = "Warp Trail", PrimaryColor = "#5FE2EF", SecondaryColor = "#FFFFFF", ParticleCount = 10, Radius = 40, DurationMs = 360 }),
+        new("dark-one-dagger", "Dark One Dagger", "A dark ornate dagger cursor with red cursed glints.", "Fantasy", 24, 5, new ClickEffect { Type = "Blade Slash", PrimaryColor = "#A6192E", SecondaryColor = "#D9DEE5", ParticleCount = 5, Radius = 18, DurationMs = 350 })
     ];
 
     private sealed record BuiltInThemeSpec(
