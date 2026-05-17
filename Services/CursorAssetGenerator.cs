@@ -134,17 +134,27 @@ public sealed class CursorAssetGenerator
         var previewPath = Path.Combine(folder, $"preview-{AssetRevision}{variantSuffix}.png");
         var cursorPath = Path.Combine(folder, $"arrow-{AssetRevision}{variantSuffix}.cur");
 
-        var cursorArt = RenderBuiltIn(spec, CursorPixelSize);
-        var previewArt = RenderBuiltIn(spec, PreviewPixelSize);
-        SavePng(previewArt, previewPath);
-        SaveCursor(cursorArt, cursorPath, spec.HotspotX, spec.HotspotY);
+        if (!File.Exists(previewPath))
+        {
+            var previewArt = RenderBuiltIn(spec, PreviewPixelSize);
+            SavePng(previewArt, previewPath);
+        }
+
+        if (!File.Exists(cursorPath))
+        {
+            var cursorArt = RenderBuiltIn(spec, CursorPixelSize);
+            SaveCursor(cursorArt, cursorPath, spec.HotspotX, spec.HotspotY);
+        }
 
         var glowPath = "";
         if (spec.Id is "lightsaber" or "omnitrix")
         {
             glowPath = Path.Combine(folder, $"arrow-glow-{AssetRevision}{variantSuffix}.cur");
-            var glowArt = RenderBuiltInGlow(spec, CursorPixelSize);
-            SaveCursor(glowArt, glowPath, spec.HotspotX, spec.HotspotY);
+            if (!File.Exists(glowPath))
+            {
+                var glowArt = RenderBuiltInGlow(spec, CursorPixelSize);
+                SaveCursor(glowArt, glowPath, spec.HotspotX, spec.HotspotY);
+            }
         }
 
         return new CursorTheme

@@ -49,21 +49,20 @@ public sealed class ClickEffectOverlayService : IDisposable
         _timer.Tick += (_, _) => Tick();
     }
 
-    public void Start()
+    public void Start(bool installMouseHook = true)
     {
         if (_window is null)
         {
             _window = new OverlayWindow();
             _window.SourceInitialized += (_, _) => MakeClickThrough(_window);
             _window.Show();
+            _window.Hide();
         }
 
-        if (_hookId == IntPtr.Zero)
+        if (installMouseHook && _hookId == IntPtr.Zero)
         {
             _hookId = SetHook(_mouseProc);
         }
-
-        _timer.Start();
     }
 
     public void Stop()
@@ -84,11 +83,15 @@ public sealed class ClickEffectOverlayService : IDisposable
     {
         if (_window is null)
         {
+            Start(installMouseHook: false);
+        }
+
+        if (_window is null)
+        {
             return;
         }
 
-        _window.UpdateBounds();
-        var point = ScreenPixelsToOverlayPoint(screenX, screenY);
+        var point = _window.MoveNearScreenPoint(screenX, screenY);
         SpawnParticles(point.X, point.Y);
     }
 
@@ -116,14 +119,7 @@ public sealed class ClickEffectOverlayService : IDisposable
             return;
         }
 
-        if (!string.IsNullOrEmpty(CurrentGlowCursorPath))
-        {
-            TriggerGlowSwap();
-            return;
-        }
-
-        _window.UpdateBounds();
-        var point = ScreenPixelsToOverlayPoint(screenX, screenY);
+        var point = _window.MoveNearScreenPoint(screenX, screenY);
         SpawnParticles(point.X, point.Y);
     }
 
@@ -166,6 +162,18 @@ public sealed class ClickEffectOverlayService : IDisposable
         var hwnd = new WindowInteropHelper(_window).Handle;
         if (hwnd != IntPtr.Zero)
         {
+            if (NativeMethods.GetWindowRect(hwnd, out var rect))
+            {
+                var clientDip = new Point(screenX - rect.Left, screenY - rect.Top);
+                var clientSource = PresentationSource.FromVisual(_window);
+                if (clientSource?.CompositionTarget is not null)
+                {
+                    clientDip = clientSource.CompositionTarget.TransformFromDevice.Transform(clientDip);
+                }
+
+                return clientDip;
+            }
+
             var clientPoint = new NativeMethods.Point
             {
                 X = (int)Math.Round(screenX),
@@ -246,6 +254,11 @@ public sealed class ClickEffectOverlayService : IDisposable
                 Spin = isStatic ? 0 : _random.NextDouble() * 160 - 80,
                 StayInPlace = isStatic
             });
+        }
+
+        if (!_timer.IsEnabled)
+        {
+            _timer.Start();
         }
     }
 
@@ -507,7 +520,6 @@ public sealed class ClickEffectOverlayService : IDisposable
             return;
         }
 
-        _window.UpdateBounds();
         var now = DateTime.UtcNow;
         for (var i = _particles.Count - 1; i >= 0; i--)
         {
@@ -530,6 +542,12 @@ public sealed class ClickEffectOverlayService : IDisposable
                 _window.Layer.Children.Remove(particle.Element);
                 _particles.RemoveAt(i);
             }
+        }
+
+        if (_particles.Count == 0)
+        {
+            _timer.Stop();
+            _window.Hide();
         }
     }
 
@@ -620,7 +638,7 @@ public sealed class ClickEffectOverlayService : IDisposable
 
     private sealed class OverlayWindow : Window
     {
-        private const double EdgeGutter = 8;
+        private const double OverlaySize = 420;
 
         public Canvas Layer { get; } = new();
 
@@ -634,20 +652,46 @@ public sealed class ClickEffectOverlayService : IDisposable
             Focusable = false;
             IsHitTestVisible = false;
             Content = Layer;
-            UpdateBounds();
+            Width = OverlaySize;
+            Height = OverlaySize;
+            Left = -10000;
+            Top = -10000;
         }
 
-        public void UpdateBounds()
+        public Point MoveNearScreenPoint(double screenX, double screenY)
         {
-            // Leave the screen edge uncovered so Windows auto-hide taskbars can reveal on hover.
-            var left = SystemParameters.VirtualScreenLeft + EdgeGutter;
-            var top = SystemParameters.VirtualScreenTop + EdgeGutter;
-            var width = Math.Max(1, SystemParameters.VirtualScreenWidth - EdgeGutter * 2);
-            var height = Math.Max(1, SystemParameters.VirtualScreenHeight - EdgeGutter * 2);
-            if (Math.Abs(Left - left) > 0.1) Left = left;
-            if (Math.Abs(Top - top) > 0.1) Top = top;
-            if (Math.Abs(Width - width) > 0.1) Width = width;
-            if (Math.Abs(Height - height) > 0.1) Height = height;
+            var source = PresentationSource.FromVisual(this);
+            var screenDip = new Point(screenX, screenY);
+            if (source?.CompositionTarget is not null)
+            {
+                screenDip = source.CompositionTarget.TransformFromDevice.Transform(screenDip);
+            }
+
+            Width = OverlaySize;
+            Height = OverlaySize;
+            Left = screenDip.X - OverlaySize / 2;
+            Top = screenDip.Y - OverlaySize / 2;
+
+            if (!IsVisible)
+            {
+                Show();
+            }
+
+            UpdateLayout();
+
+            var hwnd = new WindowInteropHelper(this).Handle;
+            if (hwnd != IntPtr.Zero && NativeMethods.GetWindowRect(hwnd, out var rect))
+            {
+                var local = new Point(screenX - rect.Left, screenY - rect.Top);
+                if (source?.CompositionTarget is not null)
+                {
+                    local = source.CompositionTarget.TransformFromDevice.Transform(local);
+                }
+
+                return local;
+            }
+
+            return new Point(OverlaySize / 2, OverlaySize / 2);
         }
 
         protected override void OnActivated(EventArgs e)
@@ -664,6 +708,13 @@ public sealed class ClickEffectOverlayService : IDisposable
         public const uint SwpNoSize = 0x0001;
         public const uint SwpNoMove = 0x0002;
         public const uint SwpNoActivate = 0x0010;
+        public const int SmXVirtualScreen = 76;
+        public const int SmYVirtualScreen = 77;
+        public const int SmCxVirtualScreen = 78;
+        public const int SmCyVirtualScreen = 79;
+
+        [DllImport("user32.dll")]
+        public static extern int GetSystemMetrics(int nIndex);
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
@@ -692,6 +743,10 @@ public sealed class ClickEffectOverlayService : IDisposable
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
 
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetWindowRect(IntPtr hWnd, out Rect rect);
+
         [StructLayout(LayoutKind.Sequential)]
         public struct Point
         {
@@ -707,6 +762,15 @@ public sealed class ClickEffectOverlayService : IDisposable
             public uint flags;
             public uint time;
             public IntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Rect
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
         }
     }
 }

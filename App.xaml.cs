@@ -6,6 +6,8 @@ namespace CursorMagic;
 
 public partial class App : System.Windows.Application
 {
+    private AgentRuntime? _agentRuntime;
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -20,6 +22,20 @@ public partial class App : System.Windows.Application
         {
             AppPaths.Ensure();
             Log("App startup");
+            if (e.Args.Any(arg => string.Equals(arg, AgentLauncher.Argument, StringComparison.OrdinalIgnoreCase)))
+            {
+                _agentRuntime = new AgentRuntime(out var alreadyRunning);
+                if (alreadyRunning)
+                {
+                    Log("Agent already running");
+                    Shutdown();
+                    return;
+                }
+
+                _agentRuntime.Start();
+                return;
+            }
+
             var window = new MainWindow();
             MainWindow = window;
             window.Show();
@@ -32,6 +48,12 @@ public partial class App : System.Windows.Application
             System.Windows.MessageBox.Show(ex.ToString(), "Cursor Magic failed to open", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown(-1);
         }
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        _agentRuntime?.Dispose();
+        base.OnExit(e);
     }
 
     public static void Log(string message)

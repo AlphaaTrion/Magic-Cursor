@@ -20,7 +20,7 @@ public sealed class StartupService
 
         if (enabled)
         {
-            key.SetValue(ValueName, $"\"{Environment.ProcessPath}\"", RegistryValueKind.String);
+            key.SetValue(ValueName, $"\"{Environment.ProcessPath}\" {AgentLauncher.Argument}", RegistryValueKind.String);
         }
         else
         {

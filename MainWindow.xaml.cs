@@ -53,24 +53,12 @@ public partial class MainWindow : Window
             LoadThemes();
             LoadBlocklist();
             SetupTray();
+            AgentLauncher.StartIfNeeded();
             _overlayService.Settings = _settings;
             if (_themes.FirstOrDefault() is { } firstTheme)
                 ApplyOverlayEffect(firstTheme);
             else
                 _overlayService.CurrentEffect = new ClickEffect();
-            Dispatcher.BeginInvoke(() =>
-            {
-                try
-                {
-                    _overlayService.Start();
-                    App.Log("Overlay started");
-                }
-                catch (Exception ex)
-                {
-                    App.Log($"Overlay failed: {ex}");
-                    SetStatus($"Cursor library is ready, but click effects could not start: {ex.Message}");
-                }
-            }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             RefreshForegroundStatus();
             UpdateCreatorPreview();
             SetStatus("Ready. Effects auto-pause over fullscreen apps and anything in the blocklist.");
@@ -175,6 +163,7 @@ public partial class MainWindow : Window
             ApplyOverlayEffect(theme);
         }
 
+        _overlayService.Start(installMouseHook: false);
         var point = ThemePreviewImage.PointToScreen(new Point(95, 95));
         _overlayService.PreviewAtScreenPoint(point.X, point.Y);
     }
@@ -688,45 +677,14 @@ public partial class MainWindow : Window
 
     private void ApplyOverlayEffect(CursorTheme theme)
     {
-        _overlayService.CurrentEffect = ResolveEffect(theme);
-        _overlayService.CurrentGlowCursorPath = theme.GlowCursorPath ?? "";
+        _overlayService.CurrentEffect = EffectResolver.Resolve(theme, _settings);
+        _overlayService.CurrentGlowCursorPath = "";
     }
 
     private ClickEffect ResolveEffect(CursorTheme theme)
     {
-        var effect = _settings.ThemeEffectOverrides.TryGetValue(theme.Id, out var effectName)
-            ? CreateEffect(effectName)
-            : CloneEffect(theme.Effect);
-
-        if (_settings.ThemeColorOverrides.TryGetValue(theme.Id, out var color))
-        {
-            effect.PrimaryColor = color;
-        }
-
-        return effect;
+        return EffectResolver.Resolve(theme, _settings);
     }
-
-    private static ClickEffect CloneEffect(ClickEffect effect)
-    {
-        return new ClickEffect
-        {
-            Type = effect.Type,
-            PrimaryColor = effect.PrimaryColor,
-            SecondaryColor = effect.SecondaryColor,
-            ParticleCount = effect.ParticleCount,
-            Radius = effect.Radius,
-            DurationMs = effect.DurationMs
-        };
-    }
-
-    private static ClickEffect CreateEffect(string name) => name switch
-    {
-        "Star Wand" => new ClickEffect { Type = "Star Wand", PrimaryColor = "#FFD957", SecondaryColor = "#F25AAE", ParticleCount = 12, Radius = 32, DurationMs = 580 },
-        "Hearts" => new ClickEffect { Type = "Hearts", PrimaryColor = "#F25AAE", SecondaryColor = "#FFD6EC", ParticleCount = 8, Radius = 26, DurationMs = 560 },
-        "Rings" => new ClickEffect { Type = "Rings", PrimaryColor = "#55F7FF", SecondaryColor = "#FFFFFF", ParticleCount = 5, Radius = 30, DurationMs = 520 },
-        "Fireflies" => new ClickEffect { Type = "Fireflies", PrimaryColor = "#C9FF7A", SecondaryColor = "#FFEA7A", ParticleCount = 10, Radius = 32, DurationMs = 620 },
-        _ => new ClickEffect { Type = "Sparkles", PrimaryColor = "#FFD957", SecondaryColor = "#F25AAE", ParticleCount = 12, Radius = 32, DurationMs = 560 }
-    };
 
     private static BitmapImage LoadBitmap(string path)
     {

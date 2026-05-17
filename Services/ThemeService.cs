@@ -15,6 +15,33 @@ public sealed class ThemeService
         return themes;
     }
 
+    public List<CursorTheme> LoadThemeMetadata()
+    {
+        AppPaths.Ensure();
+        var themes = new List<CursorTheme>();
+        var builtInThemeIndex = Path.Combine(AppPaths.BuiltInThemes, "themes.json");
+        if (File.Exists(builtInThemeIndex))
+        {
+            try
+            {
+                var json = File.ReadAllText(builtInThemeIndex);
+                themes.AddRange(JsonSerializer.Deserialize(json, CursorJsonContext.Default.ListCursorTheme) ?? []);
+            }
+            catch
+            {
+                themes.Clear();
+            }
+        }
+
+        if (themes.Count == 0)
+        {
+            themes.AddRange(_generator.EnsureBuiltInThemes());
+        }
+
+        themes.AddRange(LoadUserThemes());
+        return themes;
+    }
+
     public CursorTheme CreateUserTheme(
         string name,
         string imagePath,
