@@ -265,14 +265,25 @@ public partial class MainWindow : Window
 
         if (theme.Id == "lightsaber")
         {
-            var rebuilt = _themeService.RebuildBuiltInTheme(theme.Id, selectedColor);
-            if (rebuilt is not null)
+            try
             {
-                var index = _themes.IndexOf(theme);
-                rebuilt.IsActive = theme.IsActive;
-                _themes[index] = rebuilt;
-                ThemesListBox.SelectedItem = rebuilt;
-                _overlayService.CurrentEffect = ResolveEffect(rebuilt);
+                var rebuilt = _themeService.RebuildBuiltInTheme(theme.Id, selectedColor);
+                if (rebuilt is not null)
+                {
+                    var index = _themes.IndexOf(theme);
+                    if (index >= 0)
+                    {
+                        rebuilt.IsActive = theme.IsActive;
+                        _themes[index] = rebuilt;
+                        ThemesListBox.SelectedItem = rebuilt;
+                        _overlayService.CurrentEffect = ResolveEffect(rebuilt);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                SetStatus($"Could not rebuild cursor: {ex.Message}");
+                return;
             }
         }
 

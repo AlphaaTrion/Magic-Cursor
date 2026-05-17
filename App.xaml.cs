@@ -10,6 +10,11 @@ public partial class App : System.Windows.Application
     {
         base.OnStartup(e);
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
+        DispatcherUnhandledException += (_, args) =>
+        {
+            Log($"Unhandled UI exception: {args.Exception}");
+            args.Handled = true;
+        };
 
         try
         {
