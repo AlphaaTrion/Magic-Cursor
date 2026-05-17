@@ -128,8 +128,11 @@ public sealed class CursorAssetGenerator
     {
         var folder = Path.Combine(AppPaths.BuiltInThemes, spec.Id);
         Directory.CreateDirectory(folder);
-        var previewPath = Path.Combine(folder, $"preview-{AssetRevision}.png");
-        var cursorPath = Path.Combine(folder, $"arrow-{AssetRevision}.cur");
+        var variantSuffix = BuiltInThemeUsesAccent(spec.Id)
+            ? $"-{ColorSlug(spec.AccentColor)}"
+            : "";
+        var previewPath = Path.Combine(folder, $"preview-{AssetRevision}{variantSuffix}.png");
+        var cursorPath = Path.Combine(folder, $"arrow-{AssetRevision}{variantSuffix}.cur");
 
         var cursorArt = RenderBuiltIn(spec, CursorPixelSize);
         var previewArt = RenderBuiltIn(spec, PreviewPixelSize);
@@ -139,7 +142,7 @@ public sealed class CursorAssetGenerator
         var glowPath = "";
         if (spec.Id is "lightsaber" or "omnitrix")
         {
-            glowPath = Path.Combine(folder, $"arrow-glow-{AssetRevision}.cur");
+            glowPath = Path.Combine(folder, $"arrow-glow-{AssetRevision}{variantSuffix}.cur");
             var glowArt = RenderBuiltInGlow(spec, CursorPixelSize);
             SaveCursor(glowArt, glowPath, spec.HotspotX, spec.HotspotY);
         }
@@ -167,6 +170,18 @@ public sealed class CursorAssetGenerator
             HotspotY = hotspotY,
             Size = CursorPixelSize
         }).ToList();
+    }
+
+    private static bool BuiltInThemeUsesAccent(string id) =>
+        id.Equals("lightsaber", StringComparison.OrdinalIgnoreCase);
+
+    private static string ColorSlug(string color)
+    {
+        var slug = new string(color
+            .Where(char.IsLetterOrDigit)
+            .Select(char.ToLowerInvariant)
+            .ToArray());
+        return string.IsNullOrWhiteSpace(slug) ? "accent" : slug;
     }
 
     private static RenderTargetBitmap RenderBuiltInGlow(BuiltInThemeSpec spec, int outputSize)

@@ -50,7 +50,6 @@ public partial class MainWindow : Window
             RestoreOnExitCheckBox.IsChecked = _settings.RestoreOnExit;
             AnimationSizeSlider.Value = Math.Clamp(_settings.AnimationScale <= 0 ? 1 : _settings.AnimationScale, 0.45, 2.0);
             AnimationBrightnessSlider.Value = Math.Clamp(_settings.AnimationBrightness <= 0 ? 1 : _settings.AnimationBrightness, 0.35, 1.8);
-            RebuildColorOverrides();
             LoadThemes();
             LoadBlocklist();
             SetupTray();
@@ -89,6 +88,14 @@ public partial class MainWindow : Window
         _themes.Clear();
         foreach (var theme in _themeService.LoadThemes())
         {
+            if (_settings.ThemeColorOverrides.TryGetValue(theme.Id, out var color)
+                && _themeService.RebuildBuiltInTheme(theme.Id, color) is { } rebuilt)
+            {
+                rebuilt.IsActive = string.Equals(rebuilt.Id, _settings.ActiveThemeId, StringComparison.OrdinalIgnoreCase);
+                _themes.Add(rebuilt);
+                continue;
+            }
+
             theme.IsActive = string.Equals(theme.Id, _settings.ActiveThemeId, StringComparison.OrdinalIgnoreCase);
             _themes.Add(theme);
         }
@@ -577,14 +584,6 @@ public partial class MainWindow : Window
         _settings.AnimationBrightness = Math.Clamp(_settings.AnimationBrightness <= 0 ? 1 : _settings.AnimationBrightness, 0.35, 1.8);
         _settingsService.Save(_settings);
         _overlayService.Settings = _settings;
-    }
-
-    private void RebuildColorOverrides()
-    {
-        foreach (var pair in _settings.ThemeColorOverrides)
-        {
-            _themeService.RebuildBuiltInTheme(pair.Key, pair.Value);
-        }
     }
 
     private void SetActiveTheme(string themeId)
