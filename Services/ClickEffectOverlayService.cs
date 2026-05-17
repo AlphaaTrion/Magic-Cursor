@@ -167,6 +167,18 @@ public sealed class ClickEffectOverlayService : IDisposable
         var effect = CurrentEffect;
         var animationScale = Math.Clamp(Settings.AnimationScale <= 0 ? 1 : Settings.AnimationScale, 0.45, 2.0);
         var isTrail = effect.Type.Contains("Trail", StringComparison.OrdinalIgnoreCase);
+        var isGlow = effect.Type.Contains("Glow", StringComparison.OrdinalIgnoreCase);
+        var isPulse = effect.Type.Contains("Pulse", StringComparison.OrdinalIgnoreCase);
+        var isStatic = isGlow || isPulse;
+
+        var spawnX = x;
+        var spawnY = y;
+        if (isGlow)
+        {
+            spawnX += 10;
+            spawnY += 10;
+        }
+
         for (var i = 0; i < Math.Max(1, effect.ParticleCount); i++)
         {
             double angle;
@@ -179,21 +191,22 @@ public sealed class ClickEffectOverlayService : IDisposable
                 angle = (Math.PI * 2 / effect.ParticleCount) * i + _random.NextDouble() * 0.45;
             }
 
-            var distance = effect.Radius * animationScale * (0.45 + _random.NextDouble() * 0.55);
+            var distance = isStatic ? 0 : effect.Radius * animationScale * (0.45 + _random.NextDouble() * 0.55);
             var element = CreateParticleElement(effect, i);
-            Canvas.SetLeft(element, x - element.Width / 2);
-            Canvas.SetTop(element, y - element.Height / 2);
+            Canvas.SetLeft(element, spawnX - element.Width / 2);
+            Canvas.SetTop(element, spawnY - element.Height / 2);
             _window.Layer.Children.Add(element);
             _particles.Add(new Particle
             {
                 Element = element,
                 Start = DateTime.UtcNow,
                 Duration = TimeSpan.FromMilliseconds(effect.DurationMs + _random.Next(-60, 80)),
-                StartX = x,
-                StartY = y,
-                EndX = x + Math.Cos(angle) * distance,
-                EndY = y + Math.Sin(angle) * distance,
-                Spin = _random.NextDouble() * 160 - 80
+                StartX = spawnX,
+                StartY = spawnY,
+                EndX = spawnX + Math.Cos(angle) * distance,
+                EndY = spawnY + Math.Sin(angle) * distance,
+                Spin = isStatic ? 0 : _random.NextDouble() * 160 - 80,
+                StayInPlace = isStatic
             });
         }
     }
@@ -207,14 +220,22 @@ public sealed class ClickEffectOverlayService : IDisposable
 
         if (effect.Type.Contains("Glow", StringComparison.OrdinalIgnoreCase))
         {
+            var size = (28 + index * 10) * animationScale;
             return new Ellipse
             {
-                Width = 30 * animationScale,
-                Height = 30 * animationScale,
+                Width = size * 1.8,
+                Height = size,
                 Fill = primary,
-                Opacity = 0.6,
+                Opacity = 0.55,
                 RenderTransformOrigin = new Point(0.5, 0.5),
-                RenderTransform = new ScaleTransform(0.3, 0.3)
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.4, 0.4),
+                        new RotateTransform(45)
+                    }
+                }
             };
         }
 
@@ -242,16 +263,15 @@ public sealed class ClickEffectOverlayService : IDisposable
 
         if (effect.Type.Contains("Pulse", StringComparison.OrdinalIgnoreCase))
         {
+            var size = (20 + index * 8) * animationScale;
             return new Ellipse
             {
-                Width = 20 * animationScale,
-                Height = 20 * animationScale,
-                Stroke = primary,
-                StrokeThickness = 2.5 * animationScale,
-                Fill = Brushes.Transparent,
-                Opacity = 0.8,
+                Width = size,
+                Height = size,
+                Fill = primary,
+                Opacity = 0.65,
                 RenderTransformOrigin = new Point(0.5, 0.5),
-                RenderTransform = new ScaleTransform(0.2, 0.2)
+                RenderTransform = new ScaleTransform(0.3, 0.3)
             };
         }
 
@@ -457,7 +477,11 @@ public sealed class ClickEffectOverlayService : IDisposable
             var progress = Math.Clamp((now - particle.Start).TotalMilliseconds / particle.Duration.TotalMilliseconds, 0, 1);
             var eased = 1 - Math.Pow(1 - progress, 3);
             var x = Lerp(particle.StartX, particle.EndX, eased);
-            var y = Lerp(particle.StartY, particle.EndY, eased) - Math.Sin(progress * Math.PI) * 8;
+            var y = Lerp(particle.StartY, particle.EndY, eased);
+            if (!particle.StayInPlace)
+            {
+                y -= Math.Sin(progress * Math.PI) * 8;
+            }
             Canvas.SetLeft(particle.Element, x - particle.Element.Width / 2);
             Canvas.SetTop(particle.Element, y - particle.Element.Height / 2);
             particle.Element.Opacity = Math.Clamp((1 - progress) * Math.Clamp(Settings.AnimationBrightness <= 0 ? 1 : Settings.AnimationBrightness, 0.35, 1.8), 0, 1);
@@ -485,7 +509,10 @@ public sealed class ClickEffectOverlayService : IDisposable
 
                 if (group.Children.Count > 1 && group.Children[1] is RotateTransform rt)
                 {
-                    rt.Angle = spin * progress;
+                    if (Math.Abs(spin) > 0.01)
+                    {
+                        rt.Angle = spin * progress;
+                    }
                 }
                 break;
             case ScaleTransform scaleTransform:
@@ -550,6 +577,7 @@ public sealed class ClickEffectOverlayService : IDisposable
         public double EndX { get; init; }
         public double EndY { get; init; }
         public double Spin { get; init; }
+        public bool StayInPlace { get; init; }
     }
 
     private sealed class OverlayWindow : Window
