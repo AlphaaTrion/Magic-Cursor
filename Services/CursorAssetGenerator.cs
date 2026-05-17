@@ -18,7 +18,7 @@ public sealed class CursorAssetGenerator
     private const int LogicalSize = 48;
     private const int CursorPixelSize = 128;
     private const int PreviewPixelSize = 512;
-    private const string AssetRevision = "q20";
+    private const string AssetRevision = "q21";
 
     private static readonly string[] ThemeRoles =
     [
@@ -136,6 +136,14 @@ public sealed class CursorAssetGenerator
         SavePng(previewArt, previewPath);
         SaveCursor(cursorArt, cursorPath, spec.HotspotX, spec.HotspotY);
 
+        var glowPath = "";
+        if (spec.Id is "lightsaber" or "omnitrix")
+        {
+            glowPath = Path.Combine(folder, $"arrow-glow-{AssetRevision}.cur");
+            var glowArt = RenderBuiltInGlow(spec, CursorPixelSize);
+            SaveCursor(glowArt, glowPath, spec.HotspotX, spec.HotspotY);
+        }
+
         return new CursorTheme
         {
             Id = spec.Id,
@@ -144,7 +152,8 @@ public sealed class CursorAssetGenerator
             Category = spec.Category,
             PreviewPath = previewPath,
             Effect = spec.Effect,
-            Variants = VariantsFor(cursorPath, spec.HotspotX, spec.HotspotY)
+            Variants = VariantsFor(cursorPath, spec.HotspotX, spec.HotspotY),
+            GlowCursorPath = glowPath
         };
     }
 
@@ -158,6 +167,28 @@ public sealed class CursorAssetGenerator
             HotspotY = hotspotY,
             Size = CursorPixelSize
         }).ToList();
+    }
+
+    private static RenderTargetBitmap RenderBuiltInGlow(BuiltInThemeSpec spec, int outputSize)
+    {
+        var visual = new DrawingVisual();
+        using (var dc = visual.RenderOpen())
+        {
+            dc.PushTransform(new ScaleTransform(outputSize / (double)LogicalSize, outputSize / (double)LogicalSize));
+            switch (spec.Id)
+            {
+                case "lightsaber":
+                    DrawLightsaberGlow(dc, spec.AccentColor);
+                    break;
+                case "omnitrix":
+                    DrawOmnitrixGlow(dc);
+                    break;
+                default:
+                    return RenderBuiltIn(spec, outputSize);
+            }
+            dc.Pop();
+        }
+        return RenderVisual(visual, outputSize);
     }
 
     private static RenderTargetBitmap RenderBuiltIn(BuiltInThemeSpec spec, int outputSize)
@@ -546,6 +577,44 @@ public sealed class CursorAssetGenerator
         dc.DrawEllipse(Brush(bladeColor, 0.35), null, new Point(43.2, 43.2), 1.4, 1.4);
     }
 
+    private static void DrawLightsaberGlow(DrawingContext dc, string bladeColor)
+    {
+        // Same as normal lightsaber but with much brighter/wider blade glow
+        dc.DrawLine(Pen(bladeColor, 22.0, 0.18), new Point(4.5, 4.5), new Point(28.5, 28.5));
+        dc.DrawLine(Pen(bladeColor, 15.0, 0.30), new Point(4.5, 4.5), new Point(28.5, 28.5));
+        dc.DrawLine(Pen("#FFFFFF", 6.0), new Point(5.0, 5.0), new Point(28.0, 28.0));
+        dc.DrawLine(Pen(bladeColor, 3.2, 0.85), new Point(5.2, 5.2), new Point(27.8, 27.8));
+        dc.DrawLine(Pen("#FFFFFF", 1.4, 0.95), new Point(7.5, 5.8), new Point(24.5, 22.8));
+
+        DrawStar(dc, new Point(6.8, 6.5), 4.5, 1.8, Brush("#FFFFFF", 0.95), null);
+        dc.DrawEllipse(Brush(bladeColor, 0.70), null, new Point(16.5, 16.5), 5.5, 5.5);
+
+        var emitter = Geometry.Parse("M 26.0,31.2 L 31.2,26.0 L 35.2,30.0 L 30.0,35.2 Z");
+        dc.DrawGeometry(Linear("#C8D0DA", "#6A7280", 0, 0, 1, 1), Pen("#080C12", 1.3), emitter);
+        dc.DrawLine(Pen("#DEE4EC", 0.55, 0.8), new Point(28.2, 27.8), new Point(32.0, 31.6));
+
+        dc.DrawEllipse(Brush(bladeColor, 0.70), null, new Point(28.8, 28.8), 4.0, 4.0);
+        dc.DrawEllipse(Brush(bladeColor), Pen("#080C12", 0.9), new Point(28.8, 28.8), 1.9, 1.9);
+        dc.DrawEllipse(Brush("#FFFFFF", 0.90), null, new Point(28.2, 28.2), 0.75, 0.75);
+
+        var hilt = Geometry.Parse("M 29.8,35.0 L 35.0,29.8 L 45.6,40.4 C 46.7,41.5 46.7,43.5 45.6,44.6 L 44.6,45.6 C 43.5,46.7 41.5,46.7 40.4,45.6 Z");
+        dc.DrawGeometry(Linear("#2C3644", "#0C1018", 0, 0, 1, 1), Pen("#050A10", 1.5), hilt);
+
+        dc.DrawLine(Pen("#566270", 0.85), new Point(32.5, 32.5), new Point(42.5, 42.5));
+        dc.DrawLine(Pen("#A0AAB4", 0.4, 0.55), new Point(31.8, 33.5), new Point(41.5, 43.2));
+
+        dc.DrawLine(Pen("#50606E", 1.5), new Point(35.0, 31.2), new Point(32.0, 34.2));
+        dc.DrawLine(Pen("#50606E", 1.5), new Point(37.4, 33.6), new Point(34.4, 36.6));
+        dc.DrawLine(Pen("#50606E", 1.5), new Point(39.8, 36.0), new Point(36.8, 39.0));
+        dc.DrawLine(Pen("#50606E", 1.5), new Point(42.2, 38.4), new Point(39.2, 41.4));
+
+        dc.DrawEllipse(Brush("#DD1111"), Pen("#080C12", 0.7), new Point(35.2, 35.8), 1.3, 1.3);
+        dc.DrawEllipse(Brush("#FF5555", 0.5), null, new Point(34.8, 35.4), 0.4, 0.4);
+
+        dc.DrawEllipse(Linear("#4A5565", "#1A2030", 0, 0, 1, 1), Pen("#050A10", 1.0), new Point(43.2, 43.2), 2.6, 2.6);
+        dc.DrawEllipse(Brush(bladeColor, 0.35), null, new Point(43.2, 43.2), 1.4, 1.4);
+    }
+
     private static void DrawHeroSword(DrawingContext dc)
     {
         // Sword of Daylight - asymmetric blade with crescent cutout (Trollhunters reference)
@@ -684,6 +753,24 @@ public sealed class CursorAssetGenerator
         {
             dc.DrawEllipse(Brush("#232426"), Pen("#000000", 1.0), p, 2.5, 2.5);
             dc.DrawEllipse(Brush("#92FA1B"), Pen("#000000", 0.6), p, 1.4, 1.4);
+        }
+    }
+
+    private static void DrawOmnitrixGlow(DrawingContext dc)
+    {
+        // Same as normal omnitrix but hourglass is red instead of green
+        dc.DrawEllipse(Brush("#1C1D1F"), Pen("#000000", 3.5), new Point(24, 24), 22.0, 22.0);
+        dc.DrawEllipse(Brush("#3A3D40"), Pen("#000000", 2.5), new Point(24, 24), 17.0, 17.0);
+        dc.DrawEllipse(Brush("#232426"), Pen("#000000", 2.0), new Point(24, 24), 13.5, 13.5);
+        // Red hourglass instead of green
+        dc.DrawGeometry(Brush("#FF2020"), Pen("#000000", 1.5),
+            Geometry.Parse("M 14.5,14.5 A 13.5,13.5 0 0 1 33.5,14.5 L 28.5,24 L 33.5,33.5 A 13.5,13.5 0 0 1 14.5,33.5 L 19.5,24 Z"));
+        dc.DrawEllipse(null, Pen("#000000", 2.0), new Point(24, 24), 13.5, 13.5);
+        // Indicator dots also red
+        foreach (var p in new[] { new Point(24, 2.0), new Point(46.0, 24), new Point(24, 46.0), new Point(2.0, 24) })
+        {
+            dc.DrawEllipse(Brush("#232426"), Pen("#000000", 1.0), p, 2.5, 2.5);
+            dc.DrawEllipse(Brush("#FF2020"), Pen("#000000", 0.6), p, 1.4, 1.4);
         }
     }
 

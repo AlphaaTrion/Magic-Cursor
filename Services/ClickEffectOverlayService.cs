@@ -35,6 +35,9 @@ public sealed class ClickEffectOverlayService : IDisposable
     public ClickEffect CurrentEffect { get; set; } = new();
     public AppSettings Settings { get; set; } = new();
     public bool IsTemporarilySuspended { get; private set; }
+    public string CurrentGlowCursorPath { get; set; } = "";
+
+    private DispatcherTimer? _glowRevertTimer;
 
     public ClickEffectOverlayService()
     {
@@ -113,9 +116,43 @@ public sealed class ClickEffectOverlayService : IDisposable
             return;
         }
 
+        if (!string.IsNullOrEmpty(CurrentGlowCursorPath))
+        {
+            TriggerGlowSwap();
+        }
+
         _window.UpdateBounds();
         var point = ScreenPixelsToOverlayPoint(screenX, screenY);
         SpawnParticles(point.X, point.Y);
+    }
+
+    private void TriggerGlowSwap()
+    {
+        _glowRevertTimer?.Stop();
+
+        try
+        {
+            WindowsCursorService.SwapToGlow(CurrentGlowCursorPath);
+        }
+        catch
+        {
+            return;
+        }
+
+        _glowRevertTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(CurrentEffect.DurationMs > 0 ? CurrentEffect.DurationMs : 400)
+        };
+        _glowRevertTimer.Tick += (_, _) =>
+        {
+            _glowRevertTimer.Stop();
+            try
+            {
+                WindowsCursorService.SwapBackFromGlow();
+            }
+            catch { /* best effort */ }
+        };
+        _glowRevertTimer.Start();
     }
 
     private Point ScreenPixelsToOverlayPoint(double screenX, double screenY)

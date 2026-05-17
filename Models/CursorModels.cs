@@ -13,6 +13,7 @@ public sealed class CursorTheme
     public bool IsActive { get; set; }
     public List<CursorVariant> Variants { get; set; } = [];
     public ClickEffect Effect { get; set; } = new();
+    public string GlowCursorPath { get; set; } = "";
 }
 
 public sealed class CursorVariant

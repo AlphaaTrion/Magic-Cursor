@@ -55,7 +55,10 @@ public partial class MainWindow : Window
             LoadBlocklist();
             SetupTray();
             _overlayService.Settings = _settings;
-            _overlayService.CurrentEffect = _themes.FirstOrDefault() is { } firstTheme ? ResolveEffect(firstTheme) : new ClickEffect();
+            if (_themes.FirstOrDefault() is { } firstTheme)
+                ApplyOverlayEffect(firstTheme);
+            else
+                _overlayService.CurrentEffect = new ClickEffect();
             Dispatcher.BeginInvoke(() =>
             {
                 try
@@ -119,7 +122,7 @@ public partial class MainWindow : Window
             ? CursorAssetGenerator.LoadPreview(theme.PreviewPath)
             : null;
         ActiveThemeBadge.Visibility = theme.IsActive ? Visibility.Visible : Visibility.Collapsed;
-        _overlayService.CurrentEffect = ResolveEffect(theme);
+        ApplyOverlayEffect(theme);
         UpdateAnimationControls(theme);
         UpdateColorControls(theme);
     }
@@ -135,7 +138,7 @@ public partial class MainWindow : Window
         {
             _cursorService.Apply(theme);
             SetActiveTheme(theme.Id);
-            _overlayService.CurrentEffect = ResolveEffect(theme);
+            ApplyOverlayEffect(theme);
             SetStatus($"Applied {theme.Name} with {ResolveEffect(theme).Type} animation.");
         }
         catch (Exception ex)
@@ -162,7 +165,7 @@ public partial class MainWindow : Window
     {
         if (ThemesListBox.SelectedItem is CursorTheme theme)
         {
-            _overlayService.CurrentEffect = ResolveEffect(theme);
+            ApplyOverlayEffect(theme);
         }
 
         var point = ThemePreviewImage.PointToScreen(new Point(95, 95));
@@ -242,7 +245,7 @@ public partial class MainWindow : Window
             _settings.ThemeEffectOverrides[theme.Id] = selectedEffect;
         }
 
-        _overlayService.CurrentEffect = ResolveEffect(theme);
+        ApplyOverlayEffect(theme);
         SaveSettings();
         SetStatus($"{theme.Name} now uses {_overlayService.CurrentEffect.Type} click animation.");
     }
@@ -276,7 +279,7 @@ public partial class MainWindow : Window
                         rebuilt.IsActive = theme.IsActive;
                         _themes[index] = rebuilt;
                         ThemesListBox.SelectedItem = rebuilt;
-                        _overlayService.CurrentEffect = ResolveEffect(rebuilt);
+                        ApplyOverlayEffect(rebuilt);
                     }
                 }
             }
@@ -675,6 +678,12 @@ public partial class MainWindow : Window
     private string SelectedColor()
     {
         return (ThemeColorComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "";
+    }
+
+    private void ApplyOverlayEffect(CursorTheme theme)
+    {
+        _overlayService.CurrentEffect = ResolveEffect(theme);
+        _overlayService.CurrentGlowCursorPath = theme.GlowCursorPath ?? "";
     }
 
     private ClickEffect ResolveEffect(CursorTheme theme)

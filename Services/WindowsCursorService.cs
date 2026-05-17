@@ -55,6 +55,25 @@ public sealed class WindowsCursorService
         RefreshSystemCursors();
     }
 
+    public static void SwapToGlow(string glowCursorPath)
+    {
+        if (!File.Exists(glowCursorPath)) return;
+
+        foreach (var ocrId in AllOcrIds)
+        {
+            var hCursor = NativeMethods.LoadCursorFromFile(glowCursorPath);
+            if (hCursor != IntPtr.Zero)
+            {
+                NativeMethods.SetSystemCursor(hCursor, ocrId);
+            }
+        }
+    }
+
+    public static void SwapBackFromGlow()
+    {
+        RefreshSystemCursors();
+    }
+
     public void RestoreBackedUpOrDefaults()
     {
         using var key = Registry.CurrentUser.CreateSubKey(CursorRegistryPath, true)
@@ -113,6 +132,23 @@ public sealed class WindowsCursorService
             JsonSerializer.Serialize(backup, CursorJsonContext.Default.CursorRegistryBackup));
     }
 
+    private static readonly uint[] AllOcrIds =
+    [
+        32512, // OCR_NORMAL (Arrow)
+        32513, // OCR_IBEAM
+        32514, // OCR_WAIT
+        32515, // OCR_CROSS
+        32516, // OCR_UP
+        32642, // OCR_SIZENWSE
+        32643, // OCR_SIZENESW
+        32644, // OCR_SIZEWE
+        32645, // OCR_SIZENS
+        32646, // OCR_SIZEALL
+        32648, // OCR_NO
+        32649, // OCR_HAND
+        32650  // OCR_APPSTARTING
+    ];
+
     private static void RefreshSystemCursors()
     {
         _ = NativeMethods.SystemParametersInfo(SpiSetCursors, 0, IntPtr.Zero, SpifUpdateIniFile | SpifSendChange);
@@ -123,5 +159,12 @@ public sealed class WindowsCursorService
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SystemParametersInfo(uint uiAction, uint uiParam, IntPtr pvParam, uint fWinIni);
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern IntPtr LoadCursorFromFile(string lpFileName);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetSystemCursor(IntPtr hcur, uint id);
     }
 }
