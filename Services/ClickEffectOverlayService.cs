@@ -165,9 +165,10 @@ public sealed class ClickEffectOverlayService : IDisposable
         var effect = CurrentEffect;
         var animationScale = Math.Clamp(Settings.AnimationScale <= 0 ? 1 : Settings.AnimationScale, 0.45, 2.0);
         var isTrail = effect.Type.Contains("Trail", StringComparison.OrdinalIgnoreCase);
-        var isGlow = effect.Type.Contains("Glow", StringComparison.OrdinalIgnoreCase);
+        var isSaber = effect.Type.Contains("Saber", StringComparison.OrdinalIgnoreCase);
+        var isGlow = !isSaber && effect.Type.Contains("Glow", StringComparison.OrdinalIgnoreCase);
         var isPulse = effect.Type.Contains("Pulse", StringComparison.OrdinalIgnoreCase);
-        var isStatic = isGlow || isPulse;
+        var isStatic = isGlow || isPulse || isSaber;
 
         var spawnX = x;
         var spawnY = y;
@@ -180,7 +181,11 @@ public sealed class ClickEffectOverlayService : IDisposable
         for (var i = 0; i < Math.Max(1, effect.ParticleCount); i++)
         {
             double angle;
-            if (isTrail)
+            if (isSaber)
+            {
+                angle = -Math.PI / 4;
+            }
+            else if (isTrail)
             {
                 angle = Math.PI / 2 + (_random.NextDouble() - 0.5) * 0.6;
             }
@@ -220,6 +225,32 @@ public sealed class ClickEffectOverlayService : IDisposable
         var primary = Brush(effect.PrimaryColor);
         var secondary = Brush(effect.SecondaryColor);
         var brush = index % 2 == 0 ? primary : secondary;
+
+        if (effect.Type.Contains("Saber", StringComparison.OrdinalIgnoreCase))
+        {
+            var width = (index == 0 ? 88 : index == 1 ? 62 : 36) * animationScale;
+            var height = (index == 0 ? 12 : index == 1 ? 7 : 3.4) * animationScale;
+            var opacity = index == 0 ? 0.24 : index == 1 ? 0.48 : 0.95;
+            return new Border
+            {
+                Width = width,
+                Height = height,
+                CornerRadius = new CornerRadius(height),
+                Background = index == 2 ? Brushes.White : primary,
+                Opacity = opacity,
+                BorderBrush = index == 2 ? primary : null,
+                BorderThickness = index == 2 ? new Thickness(0.7 * animationScale) : new Thickness(0),
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.45, 0.45),
+                        new RotateTransform(45)
+                    }
+                }
+            };
+        }
 
         if (effect.Type.Contains("Glow", StringComparison.OrdinalIgnoreCase))
         {
@@ -293,28 +324,6 @@ public sealed class ClickEffectOverlayService : IDisposable
                     Children =
                     {
                         new ScaleTransform(0.6, 0.6),
-                        new RotateTransform()
-                    }
-                }
-            };
-        }
-
-        if (effect.Type.Contains("Saber", StringComparison.OrdinalIgnoreCase))
-        {
-            return new Border
-            {
-                Width = 22 * animationScale,
-                Height = 3.5 * animationScale,
-                CornerRadius = new CornerRadius(6 * animationScale),
-                Background = brush,
-                BorderBrush = Brushes.White,
-                BorderThickness = new Thickness(0.55 * animationScale),
-                RenderTransformOrigin = new Point(0.5, 0.5),
-                RenderTransform = new TransformGroup
-                {
-                    Children =
-                    {
-                        new ScaleTransform(0.48, 0.48),
                         new RotateTransform()
                     }
                 }
