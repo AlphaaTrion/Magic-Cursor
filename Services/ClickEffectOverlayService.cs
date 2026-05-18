@@ -102,7 +102,10 @@ public sealed class ClickEffectOverlayService : IDisposable
         if (nCode >= 0 && wParam == WmLButtonDown)
         {
             var hook = Marshal.PtrToStructure<NativeMethods.MouseHookStruct>(lParam);
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(() => TrySpawn(hook.pt.X, hook.pt.Y));
+            var clickPoint = NativeMethods.GetPhysicalCursorPos(out var physicalPoint)
+                ? physicalPoint
+                : hook.pt;
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() => TrySpawn(clickPoint.X, clickPoint.Y));
         }
 
         return NativeMethods.CallNextHookEx(_hookId, nCode, wParam, lParam);
@@ -150,57 +153,6 @@ public sealed class ClickEffectOverlayService : IDisposable
             catch { /* best effort */ }
         };
         _glowRevertTimer.Start();
-    }
-
-    private Point ScreenPixelsToOverlayPoint(double screenX, double screenY)
-    {
-        if (_window is null)
-        {
-            return new Point(screenX, screenY);
-        }
-
-        var hwnd = new WindowInteropHelper(_window).Handle;
-        if (hwnd != IntPtr.Zero)
-        {
-            if (NativeMethods.GetWindowRect(hwnd, out var rect))
-            {
-                var clientDip = new Point(screenX - rect.Left, screenY - rect.Top);
-                var clientSource = PresentationSource.FromVisual(_window);
-                if (clientSource?.CompositionTarget is not null)
-                {
-                    clientDip = clientSource.CompositionTarget.TransformFromDevice.Transform(clientDip);
-                }
-
-                return clientDip;
-            }
-
-            var clientPoint = new NativeMethods.Point
-            {
-                X = (int)Math.Round(screenX),
-                Y = (int)Math.Round(screenY)
-            };
-
-            if (NativeMethods.ScreenToClient(hwnd, ref clientPoint))
-            {
-                var clientDip = new Point(clientPoint.X, clientPoint.Y);
-                var clientSource = PresentationSource.FromVisual(_window);
-                if (clientSource?.CompositionTarget is not null)
-                {
-                    clientDip = clientSource.CompositionTarget.TransformFromDevice.Transform(clientDip);
-                }
-
-                return clientDip;
-            }
-        }
-
-        var screenPoint = new Point(screenX, screenY);
-        var source = PresentationSource.FromVisual(_window);
-        if (source?.CompositionTarget is not null)
-        {
-            screenPoint = source.CompositionTarget.TransformFromDevice.Transform(screenPoint);
-        }
-
-        return new Point(screenPoint.X - _window.Left, screenPoint.Y - _window.Top);
     }
 
     private void SpawnParticles(double x, double y)
@@ -724,10 +676,6 @@ public sealed class ClickEffectOverlayService : IDisposable
         [DllImport("user32.dll")]
         public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool ScreenToClient(IntPtr hWnd, ref Point lpPoint);
-
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
@@ -738,6 +686,10 @@ public sealed class ClickEffectOverlayService : IDisposable
 
         [DllImport("user32.dll")]
         public static extern uint GetDpiForWindow(IntPtr hwnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetPhysicalCursorPos(out Point lpPoint);
 
         [StructLayout(LayoutKind.Sequential)]
         public struct Point

@@ -8,6 +8,11 @@ public partial class App : System.Windows.Application
 {
     private AgentRuntime? _agentRuntime;
 
+    public App()
+    {
+        DpiAwarenessService.EnablePerMonitorAwareness();
+    }
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
