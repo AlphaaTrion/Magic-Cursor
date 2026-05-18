@@ -638,7 +638,8 @@ public sealed class ClickEffectOverlayService : IDisposable
 
     private sealed class OverlayWindow : Window
     {
-        private const double OverlaySize = 420;
+        private const int OverlaySizePixels = 420;
+        private static readonly IntPtr HwndTopmost = new(-1);
 
         public Canvas Layer { get; } = new();
 
@@ -652,25 +653,19 @@ public sealed class ClickEffectOverlayService : IDisposable
             Focusable = false;
             IsHitTestVisible = false;
             Content = Layer;
-            Width = OverlaySize;
-            Height = OverlaySize;
+            Width = OverlaySizePixels;
+            Height = OverlaySizePixels;
             Left = -10000;
             Top = -10000;
         }
 
         public Point MoveNearScreenPoint(double screenX, double screenY)
         {
-            var source = PresentationSource.FromVisual(this);
-            var screenDip = new Point(screenX, screenY);
-            if (source?.CompositionTarget is not null)
-            {
-                screenDip = source.CompositionTarget.TransformFromDevice.Transform(screenDip);
-            }
-
-            Width = OverlaySize;
-            Height = OverlaySize;
-            Left = screenDip.X - OverlaySize / 2;
-            Top = screenDip.Y - OverlaySize / 2;
+            var hwnd = new WindowInteropHelper(this).Handle;
+            var dpiScale = hwnd == IntPtr.Zero ? 1.0 : Math.Max(0.5, NativeMethods.GetDpiForWindow(hwnd) / 96.0);
+            var overlaySizeDip = OverlaySizePixels / dpiScale;
+            Width = overlaySizeDip;
+            Height = overlaySizeDip;
 
             if (!IsVisible)
             {
@@ -678,20 +673,20 @@ public sealed class ClickEffectOverlayService : IDisposable
             }
 
             UpdateLayout();
-
-            var hwnd = new WindowInteropHelper(this).Handle;
-            if (hwnd != IntPtr.Zero && NativeMethods.GetWindowRect(hwnd, out var rect))
+            hwnd = new WindowInteropHelper(this).Handle;
+            if (hwnd != IntPtr.Zero)
             {
-                var local = new Point(screenX - rect.Left, screenY - rect.Top);
-                if (source?.CompositionTarget is not null)
-                {
-                    local = source.CompositionTarget.TransformFromDevice.Transform(local);
-                }
-
-                return local;
+                NativeMethods.SetWindowPos(
+                    hwnd,
+                    HwndTopmost,
+                    (int)Math.Round(screenX - OverlaySizePixels / 2.0),
+                    (int)Math.Round(screenY - OverlaySizePixels / 2.0),
+                    OverlaySizePixels,
+                    OverlaySizePixels,
+                    NativeMethods.SwpNoActivate | NativeMethods.SwpShowWindow);
             }
 
-            return new Point(OverlaySize / 2, OverlaySize / 2);
+            return new Point(overlaySizeDip / 2, overlaySizeDip / 2);
         }
 
         protected override void OnActivated(EventArgs e)
@@ -708,13 +703,7 @@ public sealed class ClickEffectOverlayService : IDisposable
         public const uint SwpNoSize = 0x0001;
         public const uint SwpNoMove = 0x0002;
         public const uint SwpNoActivate = 0x0010;
-        public const int SmXVirtualScreen = 76;
-        public const int SmYVirtualScreen = 77;
-        public const int SmCxVirtualScreen = 78;
-        public const int SmCyVirtualScreen = 79;
-
-        [DllImport("user32.dll")]
-        public static extern int GetSystemMetrics(int nIndex);
+        public const uint SwpShowWindow = 0x0040;
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
@@ -746,6 +735,9 @@ public sealed class ClickEffectOverlayService : IDisposable
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetWindowRect(IntPtr hWnd, out Rect rect);
+
+        [DllImport("user32.dll")]
+        public static extern uint GetDpiForWindow(IntPtr hwnd);
 
         [StructLayout(LayoutKind.Sequential)]
         public struct Point
