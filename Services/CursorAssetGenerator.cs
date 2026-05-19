@@ -18,7 +18,7 @@ public sealed class CursorAssetGenerator
     private const int LogicalSize = 48;
     private const int CursorPixelSize = 128;
     private const int PreviewPixelSize = 512;
-    private const string AssetRevision = "q24";
+    private const string AssetRevision = "q25";
 
     private static readonly string[] ThemeRoles =
     [
@@ -404,6 +404,51 @@ public sealed class CursorAssetGenerator
     }
 
     private static void DrawStarWand(DrawingContext dc)
+    {
+        if (DrawStarWandFromReference(dc))
+        {
+            return;
+        }
+
+        DrawStarWandVectorFallback(dc);
+    }
+
+    private static bool DrawStarWandFromReference(DrawingContext dc)
+    {
+        var referencePath = Path.Combine(AppContext.BaseDirectory, "Assets", "StarWandReference.png");
+        if (!File.Exists(referencePath))
+        {
+            return false;
+        }
+
+        try
+        {
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.UriSource = new Uri(referencePath, UriKind.Absolute);
+            bitmap.EndInit();
+            bitmap.Freeze();
+
+            var scale = 0.00445;
+            var transform = new TransformGroup();
+            transform.Children.Add(new TranslateTransform(-bitmap.PixelWidth / 2.0, -bitmap.PixelHeight / 2.0));
+            transform.Children.Add(new RotateTransform(43));
+            transform.Children.Add(new ScaleTransform(scale * 0.86, scale));
+            transform.Children.Add(new TranslateTransform(24, 24));
+
+            dc.PushTransform(transform);
+            dc.DrawImage(bitmap, new Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
+            dc.Pop();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static void DrawStarWandVectorFallback(DrawingContext dc)
     {
         var ink = Pen("#111118", 1.65);
 

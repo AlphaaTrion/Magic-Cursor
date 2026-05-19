@@ -12,6 +12,9 @@
 
   <ItemGroup>
     <Content Include="Assets\CursorMagic.ico" />
+    <Content Include="Assets\StarWandReference.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
