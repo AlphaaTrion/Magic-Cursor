@@ -128,15 +128,7 @@ public sealed class CursorAssetGenerator
 
     public static ImageSource LoadPreview(string path)
     {
-        var bytes = File.ReadAllBytes(path);
-        using var stream = new MemoryStream(bytes);
-        var image = new BitmapImage();
-        image.BeginInit();
-        image.CacheOption = BitmapCacheOption.OnLoad;
-        image.StreamSource = stream;
-        image.EndInit();
-        image.Freeze();
-        return image;
+        return LoadBitmapFrame(path);
     }
 
     private CursorTheme EnsureBuiltInTheme(BuiltInThemeSpec spec)
@@ -415,15 +407,16 @@ public sealed class CursorAssetGenerator
 
     private static BitmapSource LoadBitmap(string path)
     {
+        return LoadBitmapFrame(path);
+    }
+
+    private static BitmapFrame LoadBitmapFrame(string path)
+    {
         var bytes = File.ReadAllBytes(path);
         using var stream = new MemoryStream(bytes);
-        var image = new BitmapImage();
-        image.BeginInit();
-        image.CacheOption = BitmapCacheOption.OnLoad;
-        image.StreamSource = stream;
-        image.EndInit();
-        image.Freeze();
-        return image;
+        var frame = BitmapFrame.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+        frame.Freeze();
+        return frame;
     }
 
     private static void SavePng(BitmapSource bitmap, string path)
