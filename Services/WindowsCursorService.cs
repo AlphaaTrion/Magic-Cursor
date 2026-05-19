@@ -55,6 +55,22 @@ public sealed class WindowsCursorService
         RefreshSystemCursors();
     }
 
+    public bool IsApplied(CursorTheme theme)
+    {
+        var arrow = theme.Variants.FirstOrDefault(variant => variant.Role.Equals("Arrow", StringComparison.OrdinalIgnoreCase));
+        if (arrow is null || string.IsNullOrWhiteSpace(arrow.AssetPath))
+        {
+            return false;
+        }
+
+        using var key = Registry.CurrentUser.OpenSubKey(CursorRegistryPath, false);
+        var currentArrow = key?.GetValue("Arrow")?.ToString() ?? "";
+        return string.Equals(
+            Path.GetFullPath(currentArrow),
+            Path.GetFullPath(arrow.AssetPath),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
     public static void SwapToGlow(string glowCursorPath)
     {
         if (!File.Exists(glowCursorPath)) return;

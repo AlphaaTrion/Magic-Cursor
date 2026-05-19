@@ -49,6 +49,7 @@ public partial class MainWindow : Window
             StartWithWindowsCheckBox.IsChecked = _settings.StartWithWindows;
             RestoreOnExitCheckBox.IsChecked = _settings.RestoreOnExit;
             LoadThemes();
+            ReapplyActiveThemeIfOutdated();
             LoadBlocklist();
             SetupTray();
             AgentLauncher.StartIfNeeded();
@@ -92,6 +93,24 @@ public partial class MainWindow : Window
 
         ThemesListBox.ItemsSource = _themes;
         ThemesListBox.SelectedIndex = _themes.Count > 0 ? 0 : -1;
+    }
+
+    private void ReapplyActiveThemeIfOutdated()
+    {
+        if (string.IsNullOrWhiteSpace(_settings.ActiveThemeId))
+        {
+            return;
+        }
+
+        var activeTheme = _themes.FirstOrDefault(theme =>
+            theme.Id.Equals(_settings.ActiveThemeId, StringComparison.OrdinalIgnoreCase));
+        if (activeTheme is null || _cursorService.IsApplied(activeTheme))
+        {
+            return;
+        }
+
+        _cursorService.Apply(activeTheme);
+        SetStatus($"Updated {activeTheme.Name} to the latest generated cursor art.");
     }
 
     private void LoadBlocklist()
