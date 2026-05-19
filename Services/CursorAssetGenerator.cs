@@ -53,6 +53,11 @@ public sealed class CursorAssetGenerator
 
     public CursorTheme? RebuildBuiltInTheme(string id, string accentColor)
     {
+        return RebuildBuiltInTheme(id, accentColor, 1.0, 1.0);
+    }
+
+    public CursorTheme? RebuildBuiltInTheme(string id, string accentColor, double glowScale, double glowBrightness)
+    {
         var spec = BuiltInSpecs().FirstOrDefault(item => item.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
         if (spec is null)
         {
@@ -62,6 +67,8 @@ public sealed class CursorAssetGenerator
         return EnsureBuiltInTheme(spec with
         {
             AccentColor = accentColor,
+            GlowScale = Math.Clamp(glowScale <= 0 ? 1 : glowScale, 0.45, 2.0),
+            GlowBrightness = Math.Clamp(glowBrightness <= 0 ? 1 : glowBrightness, 0.35, 1.8),
             Effect = EffectWithAccent(spec.Effect, accentColor)
         });
     }
@@ -131,6 +138,9 @@ public sealed class CursorAssetGenerator
         var variantSuffix = BuiltInThemeUsesAccent(spec.Id)
             ? $"-{ColorSlug(spec.AccentColor)}"
             : "";
+        var glowVariantSuffix = spec.Id.Equals("lightsaber", StringComparison.OrdinalIgnoreCase)
+            ? $"{variantSuffix}-s{SettingSlug(spec.GlowScale)}-b{SettingSlug(spec.GlowBrightness)}"
+            : variantSuffix;
         var previewPath = Path.Combine(folder, $"preview-{AssetRevision}{variantSuffix}.png");
         var cursorPath = Path.Combine(folder, $"arrow-{AssetRevision}{variantSuffix}.cur");
 
@@ -149,7 +159,7 @@ public sealed class CursorAssetGenerator
         var glowPath = "";
         if (spec.Id is "lightsaber" or "omnitrix")
         {
-            glowPath = Path.Combine(folder, $"arrow-glow-{AssetRevision}{variantSuffix}.cur");
+            glowPath = Path.Combine(folder, $"arrow-glow-{AssetRevision}{glowVariantSuffix}.cur");
             if (!File.Exists(glowPath))
             {
                 var glowArt = RenderBuiltInGlow(spec, CursorPixelSize);
@@ -194,6 +204,9 @@ public sealed class CursorAssetGenerator
         return string.IsNullOrWhiteSpace(slug) ? "accent" : slug;
     }
 
+    private static string SettingSlug(double value) =>
+        Math.Clamp(value <= 0 ? 1 : value, 0.35, 2.0).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).Replace(".", "");
+
     private static RenderTargetBitmap RenderBuiltInGlow(BuiltInThemeSpec spec, int outputSize)
     {
         var visual = new DrawingVisual();
@@ -203,7 +216,7 @@ public sealed class CursorAssetGenerator
             switch (spec.Id)
             {
                 case "lightsaber":
-                    DrawLightsaberGlow(dc, spec.AccentColor);
+                    DrawLightsaberGlow(dc, spec.AccentColor, spec.GlowScale, spec.GlowBrightness);
                     break;
                 case "omnitrix":
                     DrawOmnitrixGlow(dc);
@@ -602,24 +615,37 @@ public sealed class CursorAssetGenerator
         dc.DrawEllipse(Brush(bladeColor, 0.35), null, new Point(43.2, 43.2), 1.4, 1.4);
     }
 
-    private static void DrawLightsaberGlow(DrawingContext dc, string bladeColor)
+    private static void DrawLightsaberGlow(DrawingContext dc, string bladeColor, double glowScale, double glowBrightness)
     {
-        // Same as normal lightsaber but with much brighter/wider blade glow
-        dc.DrawLine(Pen(bladeColor, 22.0, 0.18), new Point(4.5, 4.5), new Point(28.5, 28.5));
-        dc.DrawLine(Pen(bladeColor, 15.0, 0.30), new Point(4.5, 4.5), new Point(28.5, 28.5));
-        dc.DrawLine(Pen("#FFFFFF", 6.0), new Point(5.0, 5.0), new Point(28.0, 28.0));
-        dc.DrawLine(Pen(bladeColor, 3.2, 0.85), new Point(5.2, 5.2), new Point(27.8, 27.8));
-        dc.DrawLine(Pen("#FFFFFF", 1.4, 0.95), new Point(7.5, 5.8), new Point(24.5, 22.8));
+        var size = Math.Clamp(glowScale <= 0 ? 1 : glowScale, 0.45, 2.0);
+        var brightness = Math.Clamp(glowBrightness <= 0 ? 1 : glowBrightness, 0.35, 1.8);
+        var tip = new Point(
+            28.5 + (size - 1) * 4.0,
+            28.5 + (size - 1) * 4.0);
+        var coreTip = new Point(
+            28.0 + (size - 1) * 3.5,
+            28.0 + (size - 1) * 3.5);
+        var innerTip = new Point(
+            27.8 + (size - 1) * 3.4,
+            27.8 + (size - 1) * 3.4);
+        var brightColor = Brighten(bladeColor, brightness);
 
-        DrawStar(dc, new Point(6.8, 6.5), 4.5, 1.8, Brush("#FFFFFF", 0.95), null);
-        dc.DrawEllipse(Brush(bladeColor, 0.70), null, new Point(16.5, 16.5), 5.5, 5.5);
+        // Same as normal lightsaber, but slider-controlled blade glow.
+        dc.DrawLine(Pen(brightColor, 22.0 * size, Opacity(0.18 * brightness)), new Point(4.5, 4.5), tip);
+        dc.DrawLine(Pen(brightColor, 15.0 * size, Opacity(0.30 * brightness)), new Point(4.5, 4.5), tip);
+        dc.DrawLine(Pen("#FFFFFF", 6.0 * Math.Min(1.35, size), Opacity(0.65 + 0.25 * brightness)), new Point(5.0, 5.0), coreTip);
+        dc.DrawLine(Pen(brightColor, 3.2 * Math.Min(1.55, size), Opacity(0.65 + 0.22 * brightness)), new Point(5.2, 5.2), innerTip);
+        dc.DrawLine(Pen("#FFFFFF", 1.4 * Math.Min(1.25, size), Opacity(0.75 + 0.18 * brightness)), new Point(7.5, 5.8), new Point(24.5 + (size - 1) * 2.2, 22.8 + (size - 1) * 2.2));
+
+        DrawStar(dc, new Point(6.8, 6.5), 4.5 * Math.Min(1.35, size), 1.8, Brush("#FFFFFF", Opacity(0.75 + 0.18 * brightness)), null);
+        dc.DrawEllipse(Brush(brightColor, Opacity(0.45 + 0.18 * brightness)), null, new Point(16.5, 16.5), 5.5 * size, 5.5 * size);
 
         var emitter = Geometry.Parse("M 26.0,31.2 L 31.2,26.0 L 35.2,30.0 L 30.0,35.2 Z");
         dc.DrawGeometry(Linear("#C8D0DA", "#6A7280", 0, 0, 1, 1), Pen("#080C12", 1.3), emitter);
         dc.DrawLine(Pen("#DEE4EC", 0.55, 0.8), new Point(28.2, 27.8), new Point(32.0, 31.6));
 
-        dc.DrawEllipse(Brush(bladeColor, 0.70), null, new Point(28.8, 28.8), 4.0, 4.0);
-        dc.DrawEllipse(Brush(bladeColor), Pen("#080C12", 0.9), new Point(28.8, 28.8), 1.9, 1.9);
+        dc.DrawEllipse(Brush(brightColor, Opacity(0.50 + 0.18 * brightness)), null, new Point(28.8, 28.8), 4.0 * size, 4.0 * size);
+        dc.DrawEllipse(Brush(brightColor), Pen("#080C12", 0.9), new Point(28.8, 28.8), 1.9 * Math.Min(1.35, size), 1.9 * Math.Min(1.35, size));
         dc.DrawEllipse(Brush("#FFFFFF", 0.90), null, new Point(28.2, 28.2), 0.75, 0.75);
 
         var hilt = Geometry.Parse("M 29.8,35.0 L 35.0,29.8 L 45.6,40.4 C 46.7,41.5 46.7,43.5 45.6,44.6 L 44.6,45.6 C 43.5,46.7 41.5,46.7 40.4,45.6 Z");
@@ -637,7 +663,7 @@ public sealed class CursorAssetGenerator
         dc.DrawEllipse(Brush("#FF5555", 0.5), null, new Point(34.8, 35.4), 0.4, 0.4);
 
         dc.DrawEllipse(Linear("#4A5565", "#1A2030", 0, 0, 1, 1), Pen("#050A10", 1.0), new Point(43.2, 43.2), 2.6, 2.6);
-        dc.DrawEllipse(Brush(bladeColor, 0.35), null, new Point(43.2, 43.2), 1.4, 1.4);
+        dc.DrawEllipse(Brush(brightColor, Opacity(0.25 + 0.12 * brightness)), null, new Point(43.2, 43.2), 1.4 * Math.Min(1.5, size), 1.4 * Math.Min(1.5, size));
     }
 
     private static void DrawHeroSword(DrawingContext dc)
@@ -1233,10 +1259,33 @@ public sealed class CursorAssetGenerator
     {
         var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color))
         {
-            Opacity = opacity
+            Opacity = Opacity(opacity)
         };
         brush.Freeze();
         return brush;
+    }
+
+    private static double Opacity(double value) => Math.Clamp(value, 0, 1);
+
+    private static string Brighten(string color, double brightness)
+    {
+        var parsed = (Color)ColorConverter.ConvertFromString(color);
+        brightness = Math.Clamp(brightness <= 0 ? 1 : brightness, 0.35, 1.8);
+        return Color.FromArgb(
+            parsed.A,
+            BrightenChannel(parsed.R, brightness),
+            BrightenChannel(parsed.G, brightness),
+            BrightenChannel(parsed.B, brightness)).ToString();
+    }
+
+    private static byte BrightenChannel(byte value, double brightness)
+    {
+        if (brightness <= 1)
+        {
+            return (byte)Math.Clamp(Math.Round(value * brightness), 0, 255);
+        }
+
+        return (byte)Math.Clamp(Math.Round(value + (255 - value) * (brightness - 1) / 0.8), 0, 255);
     }
 
     private static string Slug(string value)
@@ -1305,5 +1354,7 @@ public sealed class CursorAssetGenerator
         ushort HotspotX,
         ushort HotspotY,
         ClickEffect Effect,
-        string AccentColor = "#55F7FF");
+        string AccentColor = "#55F7FF",
+        double GlowScale = 1.0,
+        double GlowBrightness = 1.0);
 }

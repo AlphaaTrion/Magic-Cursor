@@ -266,7 +266,11 @@ public partial class MainWindow : Window
         {
             try
             {
-                var rebuilt = _themeService.RebuildBuiltInTheme(theme.Id, selectedColor);
+                var rebuilt = _themeService.RebuildBuiltInTheme(
+                    theme.Id,
+                    selectedColor,
+                    _settings.AnimationScale,
+                    _settings.AnimationBrightness);
                 if (rebuilt is not null)
                 {
                     var wasActive = theme.IsActive;

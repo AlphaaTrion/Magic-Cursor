@@ -121,8 +121,22 @@ public sealed class AgentRuntime : IDisposable
 
     private CursorTheme RebuildThemeForSettings(CursorTheme theme)
     {
+        if (theme.Id.Equals("lightsaber", StringComparison.OrdinalIgnoreCase)
+            && _themeService.RebuildBuiltInTheme(
+                theme.Id,
+                _settings.ThemeColorOverrides.GetValueOrDefault(theme.Id, theme.Effect.PrimaryColor),
+                _settings.AnimationScale,
+                _settings.AnimationBrightness) is { } lightsaber)
+        {
+            return lightsaber;
+        }
+
         if (_settings.ThemeColorOverrides.TryGetValue(theme.Id, out var color)
-            && _themeService.RebuildBuiltInTheme(theme.Id, color) is { } rebuilt)
+            && _themeService.RebuildBuiltInTheme(
+                theme.Id,
+                color,
+                _settings.AnimationScale,
+                _settings.AnimationBrightness) is { } rebuilt)
         {
             return rebuilt;
         }
