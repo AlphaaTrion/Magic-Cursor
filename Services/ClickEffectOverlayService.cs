@@ -174,11 +174,13 @@ public sealed class ClickEffectOverlayService : IDisposable
         var isWarp = effect.Type.Contains("Warp", StringComparison.OrdinalIgnoreCase);
         var isVortex = effect.Type.Contains("Vortex", StringComparison.OrdinalIgnoreCase);
         var isScanner = effect.Type.Contains("Scanner", StringComparison.OrdinalIgnoreCase);
+        var isCurse = effect.Type.Contains("Curse", StringComparison.OrdinalIgnoreCase);
+        var isProtection = effect.Type.Contains("Protection", StringComparison.OrdinalIgnoreCase);
         var isSaber = effect.Type.Contains("Saber", StringComparison.OrdinalIgnoreCase);
         var isOmnitrix = effect.Type.Contains("Omnitrix", StringComparison.OrdinalIgnoreCase);
         var isGlow = !isSaber && effect.Type.Contains("Glow", StringComparison.OrdinalIgnoreCase);
         var isPulse = !isOmnitrix && effect.Type.Contains("Pulse", StringComparison.OrdinalIgnoreCase);
-        var isStatic = isGlow || isPulse || isSaber || isOmnitrix || isVortex || isScanner;
+        var isStatic = isGlow || isPulse || isSaber || isOmnitrix || isVortex || isScanner || isProtection;
 
         var spawnX = x;
         var spawnY = y;
@@ -208,9 +210,13 @@ public sealed class ClickEffectOverlayService : IDisposable
             {
                 angle = Math.PI / 2 + (_random.NextDouble() - 0.5) * 0.6;
             }
-            else if (isVortex || isScanner)
+            else if (isVortex || isScanner || isProtection)
             {
                 angle = 0;
+            }
+            else if (isCurse)
+            {
+                angle = -Math.PI / 2 + (_random.NextDouble() - 0.5) * 1.1;
             }
             else
             {
@@ -231,7 +237,11 @@ public sealed class ClickEffectOverlayService : IDisposable
                 StartY = spawnY,
                 EndX = spawnX + Math.Cos(angle) * distance,
                 EndY = spawnY + Math.Sin(angle) * distance,
-                Spin = isStatic ? 0 : _random.NextDouble() * 160 - 80,
+                Spin = isVortex
+                    ? (i % 2 == 0 ? 260 : -220)
+                    : isStatic
+                        ? 0
+                        : _random.NextDouble() * 160 - 80,
                 StayInPlace = isStatic
             });
         }
@@ -323,15 +333,16 @@ public sealed class ClickEffectOverlayService : IDisposable
 
         if (effect.Type.Contains("Vortex", StringComparison.OrdinalIgnoreCase))
         {
-            var size = (18 + index * 12) * animationScale;
-            return new Ellipse
+            var size = (30 + index * 9) * animationScale;
+            return new Path
             {
-                Width = size * 1.45,
-                Height = size,
+                Data = Geometry.Parse("M -18,0 C -13,-14 8,-16 17,-5 C 10,-8 -4,-7 -9,1 C -13,8 -3,15 11,9"),
+                Width = size,
+                Height = size * 0.72,
                 Stroke = index % 2 == 0 ? primary : secondary,
                 StrokeThickness = (1.4 + index * 0.18) * animationScale,
                 Fill = Brushes.Transparent,
-                Opacity = 0.78,
+                Opacity = 0.82,
                 RenderTransformOrigin = new Point(0.5, 0.5),
                 RenderTransform = new TransformGroup
                 {
@@ -346,13 +357,11 @@ public sealed class ClickEffectOverlayService : IDisposable
 
         if (effect.Type.Contains("Scanner", StringComparison.OrdinalIgnoreCase))
         {
-            var size = (24 + index * 10) * animationScale;
-            return new Border
+            var size = (30 + index * 9) * animationScale;
+            var canvas = new Canvas
             {
                 Width = size,
-                Height = 2.4 * animationScale,
-                CornerRadius = new CornerRadius(4 * animationScale),
-                Background = brush,
+                Height = size * 0.32,
                 Opacity = 0.82,
                 RenderTransformOrigin = new Point(0.5, 0.5),
                 RenderTransform = new TransformGroup
@@ -361,6 +370,134 @@ public sealed class ClickEffectOverlayService : IDisposable
                     {
                         new ScaleTransform(0.45, 0.45),
                         new RotateTransform(index % 2 == 0 ? -18 : 18)
+                    }
+                }
+            };
+
+            var sweep = new Border
+            {
+                Width = size,
+                Height = 2.2 * animationScale,
+                CornerRadius = new CornerRadius(4 * animationScale),
+                Background = primary,
+                Opacity = 0.88
+            };
+            Canvas.SetLeft(sweep, 0);
+            Canvas.SetTop(sweep, canvas.Height * 0.5);
+            canvas.Children.Add(sweep);
+
+            for (var dot = 0; dot < 3; dot++)
+            {
+                var dotSize = (2.8 + dot * 0.8) * animationScale;
+                var blip = new Ellipse
+                {
+                    Width = dotSize,
+                    Height = dotSize,
+                    Fill = dot == 1 ? secondary : primary,
+                    Opacity = 0.9
+                };
+                Canvas.SetLeft(blip, size * (0.22 + dot * 0.23));
+                Canvas.SetTop(blip, canvas.Height * (dot % 2 == 0 ? 0.2 : 0.68));
+                canvas.Children.Add(blip);
+            }
+
+            return canvas;
+        }
+
+        if (effect.Type.Contains("Daylight", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Path
+            {
+                Data = Geometry.Parse("M 0,-12 L 3,-3 L 12,0 L 3,3 L 0,12 L -3,3 L -12,0 L -3,-3 Z M -12,-12 L 12,12"),
+                Fill = brush,
+                Stroke = Brushes.White,
+                StrokeThickness = 0.8 * animationScale,
+                Width = 18 * animationScale,
+                Height = 18 * animationScale,
+                Opacity = 0.94,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.45, 0.45),
+                        new RotateTransform()
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Eclipse", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Path
+            {
+                Data = index % 2 == 0
+                    ? Geometry.Parse("M -8,-8 L 6,-3 L 1,1 L 9,8 M -5,3 L 5,-7")
+                    : Geometry.Parse("M -10,-1 L -3,-7 L 0,-2 L 7,-8 L 2,0 L 10,3 L 1,4 L -2,10 Z"),
+                Stroke = primary,
+                StrokeThickness = 1.55 * animationScale,
+                Fill = index % 2 == 0 ? Brushes.Transparent : secondary,
+                Width = 18 * animationScale,
+                Height = 18 * animationScale,
+                Opacity = 0.9,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.5, 0.5),
+                        new RotateTransform()
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Dark Curse", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Path
+            {
+                Data = index % 3 == 0
+                    ? Geometry.Parse("M -2,-14 C -11,-8 -9,2 -2,5 C 4,8 0,13 -7,17 C 6,15 13,6 6,0 C 1,-4 5,-10 -2,-14 Z")
+                    : index % 3 == 1
+                        ? Geometry.Parse("M -13,3 C -7,-7 8,-7 14,2 C 7,0 0,4 -10,10 C -5,5 2,3 9,5 C 2,10 -8,10 -13,3 Z")
+                        : Geometry.Parse("M -6,-12 L 5,-5 L -1,0 L 8,11 M -5,-3 L 4,6 M -9,7 L -3,1"),
+                Fill = index % 3 == 2 ? Brushes.Transparent : Brush("#080508", 0.82),
+                Stroke = index % 3 == 2 ? primary : secondary,
+                StrokeThickness = index % 3 == 2 ? 1.3 * animationScale : 0.55 * animationScale,
+                Width = 22 * animationScale,
+                Height = 25 * animationScale,
+                Opacity = index % 3 == 2 ? 0.95 : 0.68,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.5, 0.5),
+                        new RotateTransform()
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Rune Motes", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Path
+            {
+                Data = index % 2 == 0
+                    ? Geometry.Parse("M 0,-8 C 6,-6 7,1 1,8 C -5,3 -4,-5 0,-8 Z")
+                    : Geometry.Parse("M -1,-8 L -1,8 M -6,-2 L -1,2 L 5,-5"),
+                Fill = index % 2 == 0 ? brush : Brushes.Transparent,
+                Stroke = secondary,
+                StrokeThickness = 0.9 * animationScale,
+                Width = 13 * animationScale,
+                Height = 16 * animationScale,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.55, 0.55),
+                        new RotateTransform()
                     }
                 }
             };
@@ -536,9 +673,7 @@ public sealed class ClickEffectOverlayService : IDisposable
             };
         }
 
-        if (effect.Type.Contains("Rune", StringComparison.OrdinalIgnoreCase)
-            || effect.Type.Contains("Curse", StringComparison.OrdinalIgnoreCase)
-            || effect.Type.Contains("Eclipse", StringComparison.OrdinalIgnoreCase))
+        if (effect.Type.Contains("Rune", StringComparison.OrdinalIgnoreCase))
         {
             return new Path
             {
@@ -566,12 +701,16 @@ public sealed class ClickEffectOverlayService : IDisposable
         {
             return new Path
             {
-                Data = Geometry.Parse("M 0,-10 L 8,-3 L 5,8 L 0,11 L -5,8 L -8,-3 Z"),
-                Fill = brush,
+                Data = index % 3 == 0
+                    ? Geometry.Parse("M 0,-15 L 11,-9 L 9,6 C 6,12 1,15 0,16 C -1,15 -6,12 -9,6 L -11,-9 Z")
+                    : index % 3 == 1
+                        ? Geometry.Parse("M 0,-12 L 5,-4 L 13,0 L 5,4 L 0,12 L -5,4 L -13,0 L -5,-4 Z M 0,-7 L 3,0 L 0,7 L -3,0 Z")
+                        : Geometry.Parse("M -12,0 L 12,0 M 0,-12 L 0,12 M -8,-8 L 8,8 M 8,-8 L -8,8"),
+                Fill = index % 3 == 2 ? Brushes.Transparent : brush,
                 Stroke = secondary,
-                StrokeThickness = 0.8 * animationScale,
-                Width = 17 * animationScale,
-                Height = 20 * animationScale,
+                StrokeThickness = (index % 3 == 2 ? 1.4 : 0.9) * animationScale,
+                Width = 24 * animationScale,
+                Height = 26 * animationScale,
                 RenderTransformOrigin = new Point(0.5, 0.5),
                 RenderTransform = new TransformGroup
                 {
@@ -645,12 +784,14 @@ public sealed class ClickEffectOverlayService : IDisposable
         {
             return new Path
             {
-                Data = Geometry.Parse("M 0,-7 L 6,-3 L 6,3 L 0,7 L -6,3 L -6,-3 Z"),
+                Data = index % 2 == 0
+                    ? Geometry.Parse("M 0,-11 L 5,-3 L 12,0 L 5,3 L 0,11 L -5,3 L -12,0 L -5,-3 Z M 0,-6 L 2,0 L 0,6 L -2,0 Z")
+                    : Geometry.Parse("M -12,-2 L -3,-5 L 0,-12 L 4,-3 L 12,0 L 4,3 L 0,12 L -3,5 Z"),
                 Fill = brush,
                 Stroke = Brushes.White,
-                StrokeThickness = 0.55 * animationScale,
-                Width = 13 * animationScale,
-                Height = 13 * animationScale,
+                StrokeThickness = 0.65 * animationScale,
+                Width = 18 * animationScale,
+                Height = 18 * animationScale,
                 RenderTransformOrigin = new Point(0.5, 0.5),
                 RenderTransform = new TransformGroup
                 {
@@ -859,6 +1000,17 @@ public sealed class ClickEffectOverlayService : IDisposable
         var brush = new SolidColorBrush(adjusted);
         brush.Freeze();
         return brush;
+    }
+
+    private SolidColorBrush Brush(string color, double opacity)
+    {
+        var brush = Brush(color);
+        var translucent = new SolidColorBrush(brush.Color)
+        {
+            Opacity = opacity
+        };
+        translucent.Freeze();
+        return translucent;
     }
 
     private static byte ScaleChannel(byte value, double brightness)
