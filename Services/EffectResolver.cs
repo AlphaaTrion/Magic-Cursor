@@ -6,6 +6,35 @@ public static class EffectResolver
 {
     public static ClickEffect Resolve(CursorTheme theme, AppSettings settings)
     {
+        if (theme.Id.Equals("lightsaber", StringComparison.OrdinalIgnoreCase))
+        {
+            var bladeColor = settings.ThemeColorOverrides.TryGetValue(theme.Id, out var savedBladeColor)
+                ? savedBladeColor
+                : theme.Effect.PrimaryColor;
+            return new ClickEffect
+            {
+                Type = "Saber Blade",
+                PrimaryColor = bladeColor,
+                SecondaryColor = "#FFFFFF",
+                ParticleCount = 3,
+                Radius = 0,
+                DurationMs = 430
+            };
+        }
+
+        if (theme.Id.Equals("omnitrix", StringComparison.OrdinalIgnoreCase))
+        {
+            return new ClickEffect
+            {
+                Type = "Omnitrix Core",
+                PrimaryColor = "#FF2020",
+                SecondaryColor = "#FF6262",
+                ParticleCount = 3,
+                Radius = 0,
+                DurationMs = 420
+            };
+        }
+
         var effect = settings.ThemeEffectOverrides.TryGetValue(theme.Id, out var effectName)
             ? Create(effectName)
             : Clone(theme.Effect);

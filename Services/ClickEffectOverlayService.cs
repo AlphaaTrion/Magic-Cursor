@@ -166,12 +166,18 @@ public sealed class ClickEffectOverlayService : IDisposable
         var animationScale = Math.Clamp(Settings.AnimationScale <= 0 ? 1 : Settings.AnimationScale, 0.45, 2.0);
         var isTrail = effect.Type.Contains("Trail", StringComparison.OrdinalIgnoreCase);
         var isSaber = effect.Type.Contains("Saber", StringComparison.OrdinalIgnoreCase);
+        var isOmnitrix = effect.Type.Contains("Omnitrix", StringComparison.OrdinalIgnoreCase);
         var isGlow = !isSaber && effect.Type.Contains("Glow", StringComparison.OrdinalIgnoreCase);
-        var isPulse = effect.Type.Contains("Pulse", StringComparison.OrdinalIgnoreCase);
-        var isStatic = isGlow || isPulse || isSaber;
+        var isPulse = !isOmnitrix && effect.Type.Contains("Pulse", StringComparison.OrdinalIgnoreCase);
+        var isStatic = isGlow || isPulse || isSaber || isOmnitrix;
 
         var spawnX = x;
         var spawnY = y;
+        if (isSaber)
+        {
+            spawnX += 16 * animationScale;
+            spawnY += 16 * animationScale;
+        }
         if (isGlow)
         {
             spawnX += 10;
@@ -184,6 +190,10 @@ public sealed class ClickEffectOverlayService : IDisposable
             if (isSaber)
             {
                 angle = -Math.PI / 4;
+            }
+            else if (isOmnitrix)
+            {
+                angle = 0;
             }
             else if (isTrail)
             {
@@ -247,6 +257,31 @@ public sealed class ClickEffectOverlayService : IDisposable
                     {
                         new ScaleTransform(0.45, 0.45),
                         new RotateTransform(45)
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Omnitrix", StringComparison.OrdinalIgnoreCase))
+        {
+            var scale = (index == 0 ? 1.0 : index == 1 ? 0.74 : 0.48) * animationScale;
+            var opacity = index == 0 ? 0.24 : index == 1 ? 0.58 : 0.95;
+            return new Path
+            {
+                Data = Geometry.Parse("M 0,-15 L 9,-4 L 9,4 L 0,15 L -9,4 L -9,-4 Z"),
+                Fill = index == 2 ? primary : secondary,
+                Stroke = index == 2 ? Brushes.White : primary,
+                StrokeThickness = index == 2 ? 1.3 * animationScale : 0.7 * animationScale,
+                Width = 25 * animationScale,
+                Height = 34 * animationScale,
+                Opacity = opacity,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(scale, scale),
+                        new RotateTransform(0)
                     }
                 }
             };
