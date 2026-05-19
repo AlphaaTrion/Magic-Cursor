@@ -176,6 +176,7 @@ public sealed class ClickEffectOverlayService : IDisposable
         var isScanner = effect.Type.Contains("Scanner", StringComparison.OrdinalIgnoreCase);
         var isCurse = effect.Type.Contains("Curse", StringComparison.OrdinalIgnoreCase);
         var isProtection = effect.Type.Contains("Protection", StringComparison.OrdinalIgnoreCase);
+        var isEnergon = effect.Type.Contains("Energon", StringComparison.OrdinalIgnoreCase);
         var isSaber = effect.Type.Contains("Saber", StringComparison.OrdinalIgnoreCase);
         var isOmnitrix = effect.Type.Contains("Omnitrix", StringComparison.OrdinalIgnoreCase);
         var isGlow = !isSaber && effect.Type.Contains("Glow", StringComparison.OrdinalIgnoreCase);
@@ -216,7 +217,11 @@ public sealed class ClickEffectOverlayService : IDisposable
             }
             else if (isCurse)
             {
-                angle = -Math.PI / 2 + (_random.NextDouble() - 0.5) * 1.1;
+                angle = -Math.PI / 2 + (_random.NextDouble() - 0.5) * 0.8;
+            }
+            else if (isEnergon)
+            {
+                angle = (Math.PI * 2 / effect.ParticleCount) * i + _random.NextDouble() * 0.25;
             }
             else
             {
@@ -241,7 +246,11 @@ public sealed class ClickEffectOverlayService : IDisposable
                     ? (i % 2 == 0 ? 260 : -220)
                     : isStatic
                         ? 0
-                        : _random.NextDouble() * 160 - 80,
+                        : isCurse
+                            ? _random.NextDouble() * 50 - 25
+                            : isEnergon
+                                ? (i % 2 == 0 ? 150 : -150)
+                                : _random.NextDouble() * 160 - 80,
                 StayInPlace = isStatic
             });
         }
@@ -454,19 +463,12 @@ public sealed class ClickEffectOverlayService : IDisposable
 
         if (effect.Type.Contains("Dark Curse", StringComparison.OrdinalIgnoreCase))
         {
-            return new Path
+            var size = (24 + index % 3 * 5) * animationScale;
+            var cloud = new Canvas
             {
-                Data = index % 3 == 0
-                    ? Geometry.Parse("M -2,-14 C -11,-8 -9,2 -2,5 C 4,8 0,13 -7,17 C 6,15 13,6 6,0 C 1,-4 5,-10 -2,-14 Z")
-                    : index % 3 == 1
-                        ? Geometry.Parse("M -13,3 C -7,-7 8,-7 14,2 C 7,0 0,4 -10,10 C -5,5 2,3 9,5 C 2,10 -8,10 -13,3 Z")
-                        : Geometry.Parse("M -6,-12 L 5,-5 L -1,0 L 8,11 M -5,-3 L 4,6 M -9,7 L -3,1"),
-                Fill = index % 3 == 2 ? Brushes.Transparent : Brush("#080508", 0.82),
-                Stroke = index % 3 == 2 ? primary : secondary,
-                StrokeThickness = index % 3 == 2 ? 1.3 * animationScale : 0.55 * animationScale,
-                Width = 22 * animationScale,
-                Height = 25 * animationScale,
-                Opacity = index % 3 == 2 ? 0.95 : 0.68,
+                Width = size,
+                Height = size * 0.78,
+                Opacity = 0.74,
                 RenderTransformOrigin = new Point(0.5, 0.5),
                 RenderTransform = new TransformGroup
                 {
@@ -477,6 +479,58 @@ public sealed class ClickEffectOverlayService : IDisposable
                     }
                 }
             };
+
+            var puffBrushes = new[]
+            {
+                Brush("#020203", 0.78),
+                Brush("#100B12", 0.72),
+                Brush("#1B141B", 0.64),
+                Brush("#050407", 0.82)
+            };
+
+            var puffs = new[]
+            {
+                (x: 1.0, y: 7.0, w: 12.0, h: 10.0),
+                (x: 7.0, y: 2.0, w: 15.0, h: 13.0),
+                (x: 16.0, y: 6.0, w: 12.0, h: 10.0),
+                (x: 6.0, y: 11.0, w: 17.0, h: 8.0)
+            };
+
+            for (var puffIndex = 0; puffIndex < puffs.Length; puffIndex++)
+            {
+                var puff = puffs[puffIndex];
+                var ellipse = new Ellipse
+                {
+                    Width = puff.w / 29.0 * size,
+                    Height = puff.h / 29.0 * size,
+                    Fill = puffBrushes[puffIndex],
+                    Stroke = Brush("#2A202A", 0.45),
+                    StrokeThickness = 0.45 * animationScale
+                };
+                Canvas.SetLeft(ellipse, puff.x / 29.0 * size);
+                Canvas.SetTop(ellipse, puff.y / 29.0 * size);
+                cloud.Children.Add(ellipse);
+            }
+
+            if (index % 4 == 0)
+            {
+                var ember = new Path
+                {
+                    Data = Geometry.Parse("M -3,-7 L 4,-2 L -1,1 L 5,7"),
+                    Stroke = primary,
+                    StrokeThickness = 0.9 * animationScale,
+                    Fill = Brushes.Transparent,
+                    Width = 7 * animationScale,
+                    Height = 10 * animationScale,
+                    Stretch = Stretch.Uniform,
+                    Opacity = 0.65
+                };
+                Canvas.SetLeft(ember, size * 0.46);
+                Canvas.SetTop(ember, size * 0.22);
+                cloud.Children.Add(ember);
+            }
+
+            return cloud;
         }
 
         if (effect.Type.Contains("Rune Motes", StringComparison.OrdinalIgnoreCase))
@@ -782,16 +836,12 @@ public sealed class ClickEffectOverlayService : IDisposable
 
         if (effect.Type.Contains("Energon", StringComparison.OrdinalIgnoreCase))
         {
-            return new Path
+            var size = (17 + index % 3 * 3) * animationScale;
+            var cube = new Canvas
             {
-                Data = index % 2 == 0
-                    ? Geometry.Parse("M 0,-11 L 5,-3 L 12,0 L 5,3 L 0,11 L -5,3 L -12,0 L -5,-3 Z M 0,-6 L 2,0 L 0,6 L -2,0 Z")
-                    : Geometry.Parse("M -12,-2 L -3,-5 L 0,-12 L 4,-3 L 12,0 L 4,3 L 0,12 L -3,5 Z"),
-                Fill = brush,
-                Stroke = Brushes.White,
-                StrokeThickness = 0.65 * animationScale,
-                Width = 18 * animationScale,
-                Height = 18 * animationScale,
+                Width = size,
+                Height = size,
+                Opacity = 0.92,
                 RenderTransformOrigin = new Point(0.5, 0.5),
                 RenderTransform = new TransformGroup
                 {
@@ -802,6 +852,55 @@ public sealed class ClickEffectOverlayService : IDisposable
                     }
                 }
             };
+
+            var outline = new Path
+            {
+                Data = index % 3 == 0
+                    ? Geometry.Parse("M 0,-10 L 9,-5 L 9,5 L 0,10 L -9,5 L -9,-5 Z")
+                    : index % 3 == 1
+                        ? Geometry.Parse("M 0,-11 L 7,-2 L 3,10 L -4,8 L -8,-3 Z")
+                        : Geometry.Parse("M -9,-7 L 7,-9 L 10,4 L -1,10 L -10,3 Z"),
+                Fill = Brush(((SolidColorBrush)brush).Color.ToString(), 0.68),
+                Stroke = Brushes.White,
+                StrokeThickness = 0.7 * animationScale,
+                Width = size,
+                Height = size,
+                Stretch = Stretch.Uniform
+            };
+            Canvas.SetLeft(outline, 0);
+            Canvas.SetTop(outline, 0);
+            cube.Children.Add(outline);
+
+            var facets = new Path
+            {
+                Data = index % 3 == 0
+                    ? Geometry.Parse("M 0,-10 L 0,10 M -9,-5 L 0,0 L 9,-5 M -9,5 L 0,10 L 9,5")
+                    : Geometry.Parse("M -5,-6 L 4,6 M 6,-2 L -3,3 M -2,-9 L 1,9"),
+                Stroke = secondary,
+                StrokeThickness = 0.8 * animationScale,
+                Fill = Brushes.Transparent,
+                Width = size,
+                Height = size,
+                Stretch = Stretch.Uniform,
+                Opacity = 0.95
+            };
+            Canvas.SetLeft(facets, 0);
+            Canvas.SetTop(facets, 0);
+            cube.Children.Add(facets);
+
+            var core = new Border
+            {
+                Width = size * 0.22,
+                Height = size * 0.22,
+                CornerRadius = new CornerRadius(size * 0.05),
+                Background = secondary,
+                Opacity = 0.8
+            };
+            Canvas.SetLeft(core, size * 0.39);
+            Canvas.SetTop(core, size * 0.39);
+            cube.Children.Add(core);
+
+            return cube;
         }
 
         if (effect.Type.Contains("Warp", StringComparison.OrdinalIgnoreCase))
