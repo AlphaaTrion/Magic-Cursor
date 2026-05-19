@@ -74,7 +74,7 @@ public sealed class CursorAssetGenerator
             AccentColor = accentColor,
             GlowScale = Math.Clamp(glowScale <= 0 ? 1 : glowScale, 0.45, 2.0),
             GlowBrightness = Math.Clamp(glowBrightness <= 0 ? 1 : glowBrightness, 0.35, 1.8),
-            CursorScale = Math.Clamp(cursorScale <= 0 ? 1 : cursorScale, 0.7, 1.35),
+            CursorScale = Math.Clamp(cursorScale <= 0 ? 1 : cursorScale, 0.7, 2.0),
             Effect = EffectWithAccent(spec.Effect, accentColor)
         });
     }
@@ -215,7 +215,7 @@ public sealed class CursorAssetGenerator
         Math.Clamp(value <= 0 ? 1 : value, 0.35, 2.0).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).Replace(".", "");
 
     private static string CursorScaleSlug(double value) =>
-        Math.Clamp(value <= 0 ? 1 : value, 0.7, 1.35).ToString("0.00", CultureInfo.InvariantCulture).Replace(".", "");
+        Math.Clamp(value <= 0 ? 1 : value, 0.7, 2.0).ToString("0.00", CultureInfo.InvariantCulture).Replace(".", "");
 
     private static RenderTargetBitmap RenderBuiltInGlow(BuiltInThemeSpec spec, int baseOutputSize)
     {
@@ -353,12 +353,12 @@ public sealed class CursorAssetGenerator
 
     private static int OutputSizeFor(int baseOutputSize, double cursorScale)
     {
-        var canvasScale = Math.Max(1.0, Math.Clamp(cursorScale <= 0 ? 1 : cursorScale, 0.7, 1.35));
+        var canvasScale = Math.Max(1.0, Math.Clamp(cursorScale <= 0 ? 1 : cursorScale, 0.7, 2.0));
         return (int)Math.Ceiling(baseOutputSize * canvasScale);
     }
 
     private static double ArtScaleFor(int baseOutputSize, double cursorScale) =>
-        baseOutputSize / (double)LogicalSize * Math.Clamp(cursorScale <= 0 ? 1 : cursorScale, 0.7, 1.35);
+        baseOutputSize / (double)LogicalSize * Math.Clamp(cursorScale <= 0 ? 1 : cursorScale, 0.7, 2.0);
 
     private static int HotspotPixel(int logicalHotspot, int outputSize, double artScale) =>
         (int)Math.Clamp(

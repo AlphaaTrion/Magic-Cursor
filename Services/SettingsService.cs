@@ -61,7 +61,7 @@ public sealed class SettingsService
             .GroupBy(pair => NormalizeThemeId(pair.Key), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
                 group => group.Key,
-                group => Math.Clamp(group.Last().Value <= 0 ? 1 : group.Last().Value, 0.7, 1.35),
+                group => Math.Clamp(group.Last().Value <= 0 ? 1 : group.Last().Value, 0.7, 2.0),
                 StringComparer.OrdinalIgnoreCase);
         settings.BlockedProcessNames = settings.BlockedProcessNames
             .Where(name => !string.IsNullOrWhiteSpace(name))

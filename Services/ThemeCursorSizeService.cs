@@ -20,5 +20,5 @@ public static class ThemeCursorSizeService
         settings.ThemeCursorSizeOverrides[SettingsService.NormalizeThemeId(themeId)] = Clamp(size);
     }
 
-    private static double Clamp(double value) => Math.Clamp(value <= 0 ? 1 : value, 0.7, 1.35);
+    private static double Clamp(double value) => Math.Clamp(value <= 0 ? 1 : value, 0.7, 2.0);
 }
