@@ -41,6 +41,21 @@ public sealed class SettingsService
         AppPaths.Ensure();
         settings.AnimationScale = Math.Clamp(settings.AnimationScale <= 0 ? 1 : settings.AnimationScale, 0.45, 2.0);
         settings.AnimationBrightness = Math.Clamp(settings.AnimationBrightness <= 0 ? 1 : settings.AnimationBrightness, 0.35, 1.8);
+        settings.ThemeAnimationOverrides = settings.ThemeAnimationOverrides
+            .Where(pair => !string.IsNullOrWhiteSpace(pair.Key))
+            .GroupBy(pair => NormalizeThemeId(pair.Key), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(
+                group => group.Key,
+                group =>
+                {
+                    var value = group.Last().Value;
+                    return new ThemeAnimationSettings
+                    {
+                        Scale = Math.Clamp(value.Scale <= 0 ? 1 : value.Scale, 0.45, 2.0),
+                        Brightness = Math.Clamp(value.Brightness <= 0 ? 1 : value.Brightness, 0.35, 1.8)
+                    };
+                },
+                StringComparer.OrdinalIgnoreCase);
         settings.BlockedProcessNames = settings.BlockedProcessNames
             .Where(name => !string.IsNullOrWhiteSpace(name))
             .Select(NormalizeProcessName)
@@ -58,4 +73,6 @@ public sealed class SettingsService
         var name = Path.GetFileNameWithoutExtension(processName.Trim());
         return name.ToLowerInvariant();
     }
+
+    public static string NormalizeThemeId(string themeId) => themeId.Trim().ToLowerInvariant();
 }

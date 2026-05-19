@@ -94,7 +94,9 @@ public sealed class AgentRuntime : IDisposable
         if (activeTheme is not null)
         {
             activeTheme = RebuildThemeForSettings(activeTheme);
-            _overlayService.CurrentEffect = EffectResolver.Resolve(activeTheme, _settings);
+            var runtimeSettings = ThemeAnimationService.RuntimeSettings(_settings, activeTheme.Id);
+            _overlayService.Settings = runtimeSettings;
+            _overlayService.CurrentEffect = EffectResolver.Resolve(activeTheme, runtimeSettings);
             _overlayService.CurrentGlowCursorPath = UsesCursorSwapAnimation(activeTheme)
                 ? activeTheme.GlowCursorPath
                 : "";
@@ -125,8 +127,8 @@ public sealed class AgentRuntime : IDisposable
             && _themeService.RebuildBuiltInTheme(
                 theme.Id,
                 _settings.ThemeColorOverrides.GetValueOrDefault(theme.Id, theme.Effect.PrimaryColor),
-                _settings.AnimationScale,
-                _settings.AnimationBrightness) is { } lightsaber)
+                ThemeAnimationService.Get(_settings, theme.Id).Scale,
+                ThemeAnimationService.Get(_settings, theme.Id).Brightness) is { } lightsaber)
         {
             return lightsaber;
         }
@@ -135,8 +137,8 @@ public sealed class AgentRuntime : IDisposable
             && _themeService.RebuildBuiltInTheme(
                 theme.Id,
                 color,
-                _settings.AnimationScale,
-                _settings.AnimationBrightness) is { } rebuilt)
+                ThemeAnimationService.Get(_settings, theme.Id).Scale,
+                ThemeAnimationService.Get(_settings, theme.Id).Brightness) is { } rebuilt)
         {
             return rebuilt;
         }

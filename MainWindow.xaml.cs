@@ -48,8 +48,6 @@ public partial class MainWindow : Window
             PauseEffectsCheckBox.IsChecked = _settings.EffectsPaused;
             StartWithWindowsCheckBox.IsChecked = _settings.StartWithWindows;
             RestoreOnExitCheckBox.IsChecked = _settings.RestoreOnExit;
-            AnimationSizeSlider.Value = Math.Clamp(_settings.AnimationScale <= 0 ? 1 : _settings.AnimationScale, 0.45, 2.0);
-            AnimationBrightnessSlider.Value = Math.Clamp(_settings.AnimationBrightness <= 0 ? 1 : _settings.AnimationBrightness, 0.35, 1.8);
             LoadThemes();
             LoadBlocklist();
             SetupTray();
@@ -77,7 +75,11 @@ public partial class MainWindow : Window
         foreach (var theme in _themeService.LoadThemes())
         {
             if (_settings.ThemeColorOverrides.TryGetValue(theme.Id, out var color)
-                && _themeService.RebuildBuiltInTheme(theme.Id, color) is { } rebuilt)
+                && _themeService.RebuildBuiltInTheme(
+                    theme.Id,
+                    color,
+                    ThemeAnimationService.Get(_settings, theme.Id).Scale,
+                    ThemeAnimationService.Get(_settings, theme.Id).Brightness) is { } rebuilt)
             {
                 rebuilt.IsActive = string.Equals(rebuilt.Id, _settings.ActiveThemeId, StringComparison.OrdinalIgnoreCase);
                 _themes.Add(rebuilt);
@@ -269,8 +271,8 @@ public partial class MainWindow : Window
                 var rebuilt = _themeService.RebuildBuiltInTheme(
                     theme.Id,
                     selectedColor,
-                    _settings.AnimationScale,
-                    _settings.AnimationBrightness);
+                    ThemeAnimationService.Get(_settings, theme.Id).Scale,
+                    ThemeAnimationService.Get(_settings, theme.Id).Brightness);
                 if (rebuilt is not null)
                 {
                     var wasActive = theme.IsActive;
@@ -302,15 +304,19 @@ public partial class MainWindow : Window
 
     private void AnimationSlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        if (!IsLoaded)
+        if (!IsLoaded || _updatingAnimationControls || ThemesListBox.SelectedItem is not CursorTheme theme)
         {
             return;
         }
 
-        _settings.AnimationScale = Math.Clamp(AnimationSizeSlider.Value, 0.45, 2.0);
-        _settings.AnimationBrightness = Math.Clamp(AnimationBrightnessSlider.Value, 0.35, 1.8);
+        ThemeAnimationService.Set(
+            _settings,
+            theme.Id,
+            AnimationSizeSlider.Value,
+            AnimationBrightnessSlider.Value);
+        ApplyOverlayEffect(theme);
         SaveSettings();
-        SetStatus($"Animation size {_settings.AnimationScale:0.00}x, brightness {_settings.AnimationBrightness:0.00}x.");
+        SetStatus($"{theme.Name} animation size {AnimationSizeSlider.Value:0.00}x, brightness {AnimationBrightnessSlider.Value:0.00}x.");
     }
 
     private void PauseEffects_Changed(object sender, RoutedEventArgs e)
@@ -576,7 +582,14 @@ public partial class MainWindow : Window
         _settings.AnimationScale = Math.Clamp(_settings.AnimationScale <= 0 ? 1 : _settings.AnimationScale, 0.45, 2.0);
         _settings.AnimationBrightness = Math.Clamp(_settings.AnimationBrightness <= 0 ? 1 : _settings.AnimationBrightness, 0.35, 1.8);
         _settingsService.Save(_settings);
-        _overlayService.Settings = _settings;
+        if (ThemesListBox.SelectedItem is CursorTheme theme)
+        {
+            _overlayService.Settings = ThemeAnimationService.RuntimeSettings(_settings, theme.Id);
+        }
+        else
+        {
+            _overlayService.Settings = _settings;
+        }
     }
 
     private void SetActiveTheme(string themeId)
@@ -626,6 +639,10 @@ public partial class MainWindow : Window
         _updatingAnimationControls = true;
         try
         {
+            var themeAnimation = ThemeAnimationService.Get(_settings, theme.Id);
+            AnimationSizeSlider.Value = themeAnimation.Scale;
+            AnimationBrightnessSlider.Value = themeAnimation.Brightness;
+
             var selected = _settings.ThemeEffectOverrides.TryGetValue(theme.Id, out var overrideName)
                 ? overrideName
                 : "Theme default";
@@ -682,6 +699,7 @@ public partial class MainWindow : Window
     private void ApplyOverlayEffect(CursorTheme theme)
     {
         _overlayService.CurrentEffect = EffectResolver.Resolve(theme, _settings);
+        _overlayService.Settings = ThemeAnimationService.RuntimeSettings(_settings, theme.Id);
         _overlayService.CurrentGlowCursorPath = UsesCursorSwapAnimation(theme)
             ? theme.GlowCursorPath
             : "";

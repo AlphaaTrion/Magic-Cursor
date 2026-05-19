@@ -45,7 +45,14 @@ public sealed class AppSettings
     public double AnimationBrightness { get; set; } = 1.0;
     public Dictionary<string, string> ThemeEffectOverrides { get; set; } = [];
     public Dictionary<string, string> ThemeColorOverrides { get; set; } = [];
+    public Dictionary<string, ThemeAnimationSettings> ThemeAnimationOverrides { get; set; } = [];
     public List<string> BlockedProcessNames { get; set; } = [];
+}
+
+public sealed class ThemeAnimationSettings
+{
+    public double Scale { get; set; } = 1.0;
+    public double Brightness { get; set; } = 1.0;
 }
 
 public sealed class CursorRegistryBackup
