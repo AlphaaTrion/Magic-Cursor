@@ -171,11 +171,14 @@ public sealed class ClickEffectOverlayService : IDisposable
         var effect = CurrentEffect;
         var animationScale = Math.Clamp(Settings.AnimationScale <= 0 ? 1 : Settings.AnimationScale, 0.45, 2.0);
         var isTrail = effect.Type.Contains("Trail", StringComparison.OrdinalIgnoreCase);
+        var isWarp = effect.Type.Contains("Warp", StringComparison.OrdinalIgnoreCase);
+        var isVortex = effect.Type.Contains("Vortex", StringComparison.OrdinalIgnoreCase);
+        var isScanner = effect.Type.Contains("Scanner", StringComparison.OrdinalIgnoreCase);
         var isSaber = effect.Type.Contains("Saber", StringComparison.OrdinalIgnoreCase);
         var isOmnitrix = effect.Type.Contains("Omnitrix", StringComparison.OrdinalIgnoreCase);
         var isGlow = !isSaber && effect.Type.Contains("Glow", StringComparison.OrdinalIgnoreCase);
         var isPulse = !isOmnitrix && effect.Type.Contains("Pulse", StringComparison.OrdinalIgnoreCase);
-        var isStatic = isGlow || isPulse || isSaber || isOmnitrix;
+        var isStatic = isGlow || isPulse || isSaber || isOmnitrix || isVortex || isScanner;
 
         var spawnX = x;
         var spawnY = y;
@@ -201,9 +204,13 @@ public sealed class ClickEffectOverlayService : IDisposable
             {
                 angle = 0;
             }
-            else if (isTrail)
+            else if (isWarp || isTrail)
             {
                 angle = Math.PI / 2 + (_random.NextDouble() - 0.5) * 0.6;
+            }
+            else if (isVortex || isScanner)
+            {
+                angle = 0;
             }
             else
             {
@@ -314,6 +321,177 @@ public sealed class ClickEffectOverlayService : IDisposable
             };
         }
 
+        if (effect.Type.Contains("Vortex", StringComparison.OrdinalIgnoreCase))
+        {
+            var size = (18 + index * 12) * animationScale;
+            return new Ellipse
+            {
+                Width = size * 1.45,
+                Height = size,
+                Stroke = index % 2 == 0 ? primary : secondary,
+                StrokeThickness = (1.4 + index * 0.18) * animationScale,
+                Fill = Brushes.Transparent,
+                Opacity = 0.78,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.35, 0.35),
+                        new RotateTransform(index * 28)
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Scanner", StringComparison.OrdinalIgnoreCase))
+        {
+            var size = (24 + index * 10) * animationScale;
+            return new Border
+            {
+                Width = size,
+                Height = 2.4 * animationScale,
+                CornerRadius = new CornerRadius(4 * animationScale),
+                Background = brush,
+                Opacity = 0.82,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.45, 0.45),
+                        new RotateTransform(index % 2 == 0 ? -18 : 18)
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Crystal", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Path
+            {
+                Data = Geometry.Parse("M 0,-9 L 5,-2 L 2,8 L -5,4 L -3,-5 Z"),
+                Fill = brush,
+                Stroke = Brushes.White,
+                StrokeThickness = 0.65 * animationScale,
+                Width = 13 * animationScale,
+                Height = 17 * animationScale,
+                Opacity = 0.9,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.52, 0.52),
+                        new RotateTransform()
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Bubble", StringComparison.OrdinalIgnoreCase))
+        {
+            var size = (8 + index % 3 * 4) * animationScale;
+            return new Ellipse
+            {
+                Width = size,
+                Height = size,
+                Stroke = brush,
+                StrokeThickness = 1.3 * animationScale,
+                Fill = new SolidColorBrush(((SolidColorBrush)brush).Color) { Opacity = 0.18 },
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new ScaleTransform(0.45, 0.45)
+            };
+        }
+
+        if (effect.Type.Contains("Pixel", StringComparison.OrdinalIgnoreCase))
+        {
+            var size = 6 * animationScale;
+            return new Border
+            {
+                Width = size,
+                Height = size,
+                Background = brush,
+                BorderBrush = Brushes.White,
+                BorderThickness = new Thickness(0.4 * animationScale),
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.6, 0.6),
+                        new RotateTransform(0)
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Moon", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Path
+            {
+                Data = Geometry.Parse("M 3,-8 C -4,-6 -8,0 -5,6 C -2,12 6,10 9,4 C 3,7 -3,4 -2,-2 C -1,-6 2,-8 3,-8 Z"),
+                Fill = brush,
+                Stroke = secondary,
+                StrokeThickness = 0.5 * animationScale,
+                Width = 13 * animationScale,
+                Height = 17 * animationScale,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.55, 0.55),
+                        new RotateTransform()
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Candy", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Path
+            {
+                Data = Geometry.Parse("M -7,-2 L 7,-2 L 7,2 L -7,2 Z M -9,0 L -13,-4 L -13,4 Z M 9,0 L 13,-4 L 13,4 Z"),
+                Fill = brush,
+                Stroke = Brushes.White,
+                StrokeThickness = 0.6 * animationScale,
+                Width = 18 * animationScale,
+                Height = 10 * animationScale,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.55, 0.55),
+                        new RotateTransform()
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Ink", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Path
+            {
+                Data = Geometry.Parse("M -10,2 C -5,-4 2,-5 10,-2 C 4,0 -1,3 -7,6 Z"),
+                Fill = brush,
+                Stroke = secondary,
+                StrokeThickness = 0.45 * animationScale,
+                Width = 18 * animationScale,
+                Height = 12 * animationScale,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.55, 0.55),
+                        new RotateTransform()
+                    }
+                }
+            };
+        }
+
         if (effect.Type.Contains("Slash", StringComparison.OrdinalIgnoreCase))
         {
             return new Path
@@ -330,6 +508,76 @@ public sealed class ClickEffectOverlayService : IDisposable
                     Children =
                     {
                         new ScaleTransform(0.5, 0.5),
+                        new RotateTransform()
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Glint", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Path
+            {
+                Data = Geometry.Parse("M 0,-10 L 2.5,-2.5 L 10,0 L 2.5,2.5 L 0,10 L -2.5,2.5 L -10,0 L -2.5,-2.5 Z"),
+                Fill = brush,
+                Stroke = Brushes.White,
+                StrokeThickness = 0.75 * animationScale,
+                Width = 16 * animationScale,
+                Height = 16 * animationScale,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.5, 0.5),
+                        new RotateTransform()
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Rune", StringComparison.OrdinalIgnoreCase)
+            || effect.Type.Contains("Curse", StringComparison.OrdinalIgnoreCase)
+            || effect.Type.Contains("Eclipse", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Path
+            {
+                Data = index % 2 == 0
+                    ? Geometry.Parse("M -5,-8 L 4,-2 L -2,1 L 6,8 M -2,-5 L 3,5")
+                    : Geometry.Parse("M 0,-8 L 5,0 L 0,8 L -5,0 Z"),
+                Stroke = brush,
+                StrokeThickness = 1.4 * animationScale,
+                Fill = index % 2 == 0 ? Brushes.Transparent : secondary,
+                Width = 14 * animationScale,
+                Height = 16 * animationScale,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.52, 0.52),
+                        new RotateTransform()
+                    }
+                }
+            };
+        }
+
+        if (effect.Type.Contains("Protection", StringComparison.OrdinalIgnoreCase))
+        {
+            return new Path
+            {
+                Data = Geometry.Parse("M 0,-10 L 8,-3 L 5,8 L 0,11 L -5,8 L -8,-3 Z"),
+                Fill = brush,
+                Stroke = secondary,
+                StrokeThickness = 0.8 * animationScale,
+                Width = 17 * animationScale,
+                Height = 20 * animationScale,
+                RenderTransformOrigin = new Point(0.5, 0.5),
+                RenderTransform = new TransformGroup
+                {
+                    Children =
+                    {
+                        new ScaleTransform(0.48, 0.48),
                         new RotateTransform()
                     }
                 }

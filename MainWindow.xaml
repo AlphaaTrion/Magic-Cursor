@@ -163,6 +163,23 @@
                                         <ComboBoxItem Content="Hearts" />
                                         <ComboBoxItem Content="Rings" />
                                         <ComboBoxItem Content="Fireflies" />
+                                        <ComboBoxItem Content="Time Vortex" />
+                                        <ComboBoxItem Content="Scanner Sweep" />
+                                        <ComboBoxItem Content="Warp Trail" />
+                                        <ComboBoxItem Content="Energon Sparks" />
+                                        <ComboBoxItem Content="Blade Slash" />
+                                        <ComboBoxItem Content="Daylight Glint" />
+                                        <ComboBoxItem Content="Eclipse Runes" />
+                                        <ComboBoxItem Content="Protection Burst" />
+                                        <ComboBoxItem Content="Rune Motes" />
+                                        <ComboBoxItem Content="Rune Burst" />
+                                        <ComboBoxItem Content="Dark Curse" />
+                                        <ComboBoxItem Content="Crystal Shards" />
+                                        <ComboBoxItem Content="Bubble Burst" />
+                                        <ComboBoxItem Content="Pixel Bits" />
+                                        <ComboBoxItem Content="Moon Dust" />
+                                        <ComboBoxItem Content="Candy Burst" />
+                                        <ComboBoxItem Content="Ink Flick" />
                                     </ComboBox>
                                     <TextBlock Text="Theme color" Style="{StaticResource FieldLabel}" Margin="0,14,0,6" />
                                     <ComboBox x:Name="ThemeColorComboBox" SelectionChanged="ThemeColorComboBox_SelectionChanged">
