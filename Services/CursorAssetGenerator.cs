@@ -128,10 +128,12 @@ public sealed class CursorAssetGenerator
 
     public static ImageSource LoadPreview(string path)
     {
+        var bytes = File.ReadAllBytes(path);
+        using var stream = new MemoryStream(bytes);
         var image = new BitmapImage();
         image.BeginInit();
         image.CacheOption = BitmapCacheOption.OnLoad;
-        image.UriSource = new Uri(path, UriKind.Absolute);
+        image.StreamSource = stream;
         image.EndInit();
         image.Freeze();
         return image;
@@ -413,10 +415,12 @@ public sealed class CursorAssetGenerator
 
     private static BitmapSource LoadBitmap(string path)
     {
+        var bytes = File.ReadAllBytes(path);
+        using var stream = new MemoryStream(bytes);
         var image = new BitmapImage();
         image.BeginInit();
         image.CacheOption = BitmapCacheOption.OnLoad;
-        image.UriSource = new Uri(path, UriKind.Absolute);
+        image.StreamSource = stream;
         image.EndInit();
         image.Freeze();
         return image;
@@ -424,10 +428,13 @@ public sealed class CursorAssetGenerator
 
     private static void SavePng(BitmapSource bitmap, string path)
     {
-        using var stream = File.Create(path);
+        var tempPath = TempPath(path);
+        using var stream = File.Create(tempPath);
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(bitmap));
         encoder.Save(stream);
+        stream.Dispose();
+        ReplaceFile(tempPath, path);
     }
 
     private static void SaveCursor(BitmapSource bitmap, string path, int hotspotX, int hotspotY)
@@ -445,7 +452,8 @@ public sealed class CursorAssetGenerator
         encoder.Save(pngStream);
         var png = pngStream.ToArray();
 
-        using var writer = new BinaryWriter(File.Create(path));
+        var tempPath = TempPath(path);
+        using var writer = new BinaryWriter(File.Create(tempPath));
         var width = bitmap.PixelWidth;
         var height = bitmap.PixelHeight;
         writer.Write((ushort)0);
@@ -460,6 +468,32 @@ public sealed class CursorAssetGenerator
         writer.Write(png.Length);
         writer.Write(22);
         writer.Write(png);
+        writer.Dispose();
+        ReplaceFile(tempPath, path);
+    }
+
+    private static string TempPath(string path) =>
+        Path.Combine(Path.GetDirectoryName(path) ?? AppPaths.Root, $".{Path.GetFileName(path)}.{Guid.NewGuid():N}.tmp");
+
+    private static void ReplaceFile(string tempPath, string path)
+    {
+        try
+        {
+            File.Move(tempPath, path, overwrite: true);
+        }
+        catch
+        {
+            try
+            {
+                File.Delete(tempPath);
+            }
+            catch
+            {
+                // Best effort cleanup if a scanner or viewer grabbed the temporary file.
+            }
+
+            throw;
+        }
     }
 
     private static void DrawStarWand(DrawingContext dc)
