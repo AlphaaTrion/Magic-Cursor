@@ -18,7 +18,7 @@ public sealed class CursorAssetGenerator
     private const int LogicalSize = 48;
     private const int CursorPixelSize = 128;
     private const int PreviewPixelSize = 512;
-    private const string AssetRevision = "q32";
+    private const string AssetRevision = "q33";
 
     private static readonly string[] ThemeRoles =
     [
@@ -159,8 +159,8 @@ public sealed class CursorAssetGenerator
 
         if (!File.Exists(cursorPath))
         {
-            var cursorArt = RenderBuiltIn(spec, CursorPixelSize);
-            SaveCursor(cursorArt, cursorPath, spec.HotspotX, spec.HotspotY);
+            var cursorArt = RenderBuiltIn(spec, CursorPixelSize, out var hotspotPixelX, out var hotspotPixelY);
+            SaveCursorWithPixelHotspot(cursorArt, cursorPath, hotspotPixelX, hotspotPixelY);
         }
 
         var glowPath = "";
@@ -169,8 +169,8 @@ public sealed class CursorAssetGenerator
             glowPath = Path.Combine(folder, $"arrow-glow-{AssetRevision}{glowVariantSuffix}.cur");
             if (!File.Exists(glowPath))
             {
-                var glowArt = RenderBuiltInGlow(spec, CursorPixelSize);
-                SaveCursor(glowArt, glowPath, spec.HotspotX, spec.HotspotY);
+                var glowArt = RenderBuiltInGlow(spec, CursorPixelSize, out var glowHotspotX, out var glowHotspotY);
+                SaveCursorWithPixelHotspot(glowArt, glowPath, glowHotspotX, glowHotspotY);
             }
         }
 
@@ -217,15 +217,21 @@ public sealed class CursorAssetGenerator
     private static string CursorScaleSlug(double value) =>
         Math.Clamp(value <= 0 ? 1 : value, 0.7, 1.35).ToString("0.00", CultureInfo.InvariantCulture).Replace(".", "");
 
-    private static RenderTargetBitmap RenderBuiltInGlow(BuiltInThemeSpec spec, int outputSize)
+    private static RenderTargetBitmap RenderBuiltInGlow(BuiltInThemeSpec spec, int baseOutputSize)
+    {
+        return RenderBuiltInGlow(spec, baseOutputSize, out _, out _);
+    }
+
+    private static RenderTargetBitmap RenderBuiltInGlow(BuiltInThemeSpec spec, int baseOutputSize, out int hotspotPixelX, out int hotspotPixelY)
     {
         var visual = new DrawingVisual();
+        var outputSize = OutputSizeFor(baseOutputSize, spec.CursorScale);
+        var artScale = ArtScaleFor(baseOutputSize, spec.CursorScale);
+        hotspotPixelX = HotspotPixel(spec.HotspotX, outputSize, artScale);
+        hotspotPixelY = HotspotPixel(spec.HotspotY, outputSize, artScale);
         using (var dc = visual.RenderOpen())
         {
-            dc.PushTransform(new ScaleTransform(outputSize / (double)LogicalSize, outputSize / (double)LogicalSize));
-            dc.PushTransform(new TranslateTransform(LogicalSize / 2.0, LogicalSize / 2.0));
-            dc.PushTransform(new ScaleTransform(spec.CursorScale, spec.CursorScale));
-            dc.PushTransform(new TranslateTransform(-LogicalSize / 2.0, -LogicalSize / 2.0));
+            PushBuiltInTransforms(dc, outputSize, artScale);
             switch (spec.Id)
             {
                 case "lightsaber":
@@ -235,22 +241,30 @@ public sealed class CursorAssetGenerator
                     DrawOmnitrixGlow(dc);
                     break;
                 default:
-                    return RenderBuiltIn(spec, outputSize);
+                    return RenderBuiltIn(spec, baseOutputSize, out hotspotPixelX, out hotspotPixelY);
             }
+            dc.Pop();
+            dc.Pop();
             dc.Pop();
         }
         return RenderVisual(visual, outputSize);
     }
 
-    private static RenderTargetBitmap RenderBuiltIn(BuiltInThemeSpec spec, int outputSize)
+    private static RenderTargetBitmap RenderBuiltIn(BuiltInThemeSpec spec, int baseOutputSize)
+    {
+        return RenderBuiltIn(spec, baseOutputSize, out _, out _);
+    }
+
+    private static RenderTargetBitmap RenderBuiltIn(BuiltInThemeSpec spec, int baseOutputSize, out int hotspotPixelX, out int hotspotPixelY)
     {
         var visual = new DrawingVisual();
+        var outputSize = OutputSizeFor(baseOutputSize, spec.CursorScale);
+        var artScale = ArtScaleFor(baseOutputSize, spec.CursorScale);
+        hotspotPixelX = HotspotPixel(spec.HotspotX, outputSize, artScale);
+        hotspotPixelY = HotspotPixel(spec.HotspotY, outputSize, artScale);
         using (var dc = visual.RenderOpen())
         {
-            dc.PushTransform(new ScaleTransform(outputSize / (double)LogicalSize, outputSize / (double)LogicalSize));
-            dc.PushTransform(new TranslateTransform(LogicalSize / 2.0, LogicalSize / 2.0));
-            dc.PushTransform(new ScaleTransform(spec.CursorScale, spec.CursorScale));
-            dc.PushTransform(new TranslateTransform(-LogicalSize / 2.0, -LogicalSize / 2.0));
+            PushBuiltInTransforms(dc, outputSize, artScale);
             switch (spec.Id)
             {
                 case "star-wand":
@@ -332,10 +346,31 @@ public sealed class CursorAssetGenerator
             dc.Pop();
             dc.Pop();
             dc.Pop();
-            dc.Pop();
         }
 
         return RenderVisual(visual, outputSize);
+    }
+
+    private static int OutputSizeFor(int baseOutputSize, double cursorScale)
+    {
+        var canvasScale = Math.Max(1.0, Math.Clamp(cursorScale <= 0 ? 1 : cursorScale, 0.7, 1.35));
+        return (int)Math.Ceiling(baseOutputSize * canvasScale);
+    }
+
+    private static double ArtScaleFor(int baseOutputSize, double cursorScale) =>
+        baseOutputSize / (double)LogicalSize * Math.Clamp(cursorScale <= 0 ? 1 : cursorScale, 0.7, 1.35);
+
+    private static int HotspotPixel(int logicalHotspot, int outputSize, double artScale) =>
+        (int)Math.Clamp(
+            Math.Round(outputSize / 2.0 + (logicalHotspot - LogicalSize / 2.0) * artScale),
+            0,
+            outputSize - 1);
+
+    private static void PushBuiltInTransforms(DrawingContext dc, int outputSize, double artScale)
+    {
+        dc.PushTransform(new TranslateTransform(outputSize / 2.0, outputSize / 2.0));
+        dc.PushTransform(new ScaleTransform(artScale, artScale));
+        dc.PushTransform(new TranslateTransform(-LogicalSize / 2.0, -LogicalSize / 2.0));
     }
 
     private static RenderTargetBitmap RenderUserCursor(BitmapSource source, string decoration, int outputSize)
@@ -397,6 +432,13 @@ public sealed class CursorAssetGenerator
 
     private static void SaveCursor(BitmapSource bitmap, string path, int hotspotX, int hotspotY)
     {
+        var scaledHotspotX = (int)Math.Round(hotspotX * (bitmap.PixelWidth / (double)LogicalSize));
+        var scaledHotspotY = (int)Math.Round(hotspotY * (bitmap.PixelHeight / (double)LogicalSize));
+        SaveCursorWithPixelHotspot(bitmap, path, scaledHotspotX, scaledHotspotY);
+    }
+
+    private static void SaveCursorWithPixelHotspot(BitmapSource bitmap, string path, int hotspotX, int hotspotY)
+    {
         using var pngStream = new MemoryStream();
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(bitmap));
@@ -406,8 +448,6 @@ public sealed class CursorAssetGenerator
         using var writer = new BinaryWriter(File.Create(path));
         var width = bitmap.PixelWidth;
         var height = bitmap.PixelHeight;
-        var scaledHotspotX = (int)Math.Round(hotspotX * (width / (double)LogicalSize));
-        var scaledHotspotY = (int)Math.Round(hotspotY * (height / (double)LogicalSize));
         writer.Write((ushort)0);
         writer.Write((ushort)2);
         writer.Write((ushort)1);
@@ -415,8 +455,8 @@ public sealed class CursorAssetGenerator
         writer.Write((byte)(height >= 256 ? 0 : height));
         writer.Write((byte)0);
         writer.Write((byte)0);
-        writer.Write((ushort)Math.Clamp(scaledHotspotX, 0, width - 1));
-        writer.Write((ushort)Math.Clamp(scaledHotspotY, 0, height - 1));
+        writer.Write((ushort)Math.Clamp(hotspotX, 0, width - 1));
+        writer.Write((ushort)Math.Clamp(hotspotY, 0, height - 1));
         writer.Write(png.Length);
         writer.Write(22);
         writer.Write(png);
