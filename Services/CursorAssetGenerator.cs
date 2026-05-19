@@ -18,7 +18,7 @@ public sealed class CursorAssetGenerator
     private const int LogicalSize = 48;
     private const int CursorPixelSize = 128;
     private const int PreviewPixelSize = 512;
-    private const string AssetRevision = "q21";
+    private const string AssetRevision = "q23";
 
     private static readonly string[] ThemeRoles =
     [
@@ -405,42 +405,48 @@ public sealed class CursorAssetGenerator
 
     private static void DrawStarWand(DrawingContext dc)
     {
-        var ink = Pen("#15151C", 2.1);
+        var ink = Pen("#111118", 1.9);
 
         DrawWandWing(dc, true);
         DrawWandWing(dc, false);
         DrawWandHorn(dc, true);
         DrawWandHorn(dc, false);
 
-        var handle = Geometry.Parse("M 20.8,27.5 L 27.2,27.5 L 27.2,42.8 L 20.8,42.8 Z");
-        dc.DrawGeometry(Brush("#7157B7"), ink, handle);
+        var handle = Geometry.Parse("M 21.0,27.8 L 27.0,27.8 L 27.0,42.8 C 27.0,43.9 26.0,44.6 24,44.6 C 22.0,44.6 21.0,43.9 21.0,42.8 Z");
+        dc.DrawGeometry(Linear("#8268C9", "#4F419D", 0, 0, 1, 1), ink, handle);
         dc.PushClip(handle);
-        dc.DrawGeometry(Brush("#B89AF3"), null, Geometry.Parse("M 20.9,28 L 27.2,34.2 L 27.2,40.2 L 20.9,34 Z"));
-        dc.DrawGeometry(Brush("#4D3C8C"), null, Geometry.Parse("M 20.9,37.3 L 27.2,43.1 L 20.9,43.1 Z"));
+        dc.DrawGeometry(Brush("#B99DF5"), null, Geometry.Parse("M 21.1,27.6 L 27.2,33.6 L 27.2,38.1 L 21.1,32.3 Z"));
+        dc.DrawGeometry(Brush("#372A83"), null, Geometry.Parse("M 21.1,35.9 L 27.2,42.3 L 27.2,45 L 21.1,39.2 Z"));
+        dc.DrawLine(Pen("#D4C7FF", 0.55, 0.45), new Point(21.8, 28.2), new Point(21.8, 42.5));
         dc.Pop();
 
-        dc.DrawEllipse(Brush("#F6D456"), ink, new Point(24, 42.2), 5.8, 3.0);
-        var gem = Geometry.Parse("M 24,42.9 L 28.8,45.8 L 24,48 L 19.2,45.8 Z");
-        dc.DrawGeometry(Brush("#EF8CFF"), Pen("#FFFFFF", 1.2), gem);
-        dc.DrawLine(Pen("#B754D5", 1.1), new Point(24, 42.8), new Point(24, 47.6));
-        dc.DrawLine(Pen("#B754D5", 1.1), new Point(19.2,45.7), new Point(28.8,45.7));
+        dc.DrawEllipse(Linear("#FFE26D", "#C7922D", 0, 0, 0, 1), ink, new Point(24, 42.7), 5.4, 2.6);
+        var gem = Geometry.Parse("M 24,43.1 L 28.2,45.5 L 24,48 L 19.8,45.5 Z");
+        dc.DrawGeometry(Linear("#FF9FF5", "#B94DD5", 0, 0, 0, 1), Pen("#F7D5FF", 1.0), gem);
+        dc.DrawLine(Pen("#FFFFFF", 0.75, 0.85), new Point(24, 43.5), new Point(24, 47.2));
+        dc.DrawLine(Pen("#B754D5", 0.75), new Point(20.3,45.5), new Point(27.7,45.5));
 
-        DrawHeart(dc, new Point(24, 28.2), 0.38, Brush("#F04DA5"), Pen("#591B4B", 1.05));
+        var neck = Geometry.Parse("M 20.6,25.9 L 27.4,25.9 L 24,29.4 Z");
+        dc.DrawGeometry(Brush("#D1A445"), ink, neck);
+        DrawHeart(dc, new Point(24, 28.4), 0.27, Linear("#FF61B5", "#CA2A80", 0, 0, 0, 1), Pen("#591B4B", 0.9));
+        dc.DrawGeometry(Brush("#FF8ED0", 0.45), null, Geometry.Parse("M 23.1,20.2 C 20.9,19.4 20.2,23 23.4,25.3 C 23.0,23.4 23.1,21.5 23.1,20.2 Z"));
 
-        dc.DrawEllipse(Brush("#B58CE7"), ink, new Point(24, 15.3), 15.1, 15.1);
-        dc.DrawEllipse(Brush("#BFE8F6"), Pen("#15151C", 1.7), new Point(24, 15.3), 11.6, 11.6);
+        dc.DrawEllipse(Linear("#C9A2F2", "#9F72DD", 0, 0, 1, 1), ink, new Point(24, 15.1), 13.4, 13.4);
+        dc.DrawEllipse(Brush("#C9ECF7"), Pen("#111118", 1.35), new Point(24, 15.1), 10.2, 10.2);
 
-        dc.DrawGeometry(Brush("#EAFBFF"), null, Geometry.Parse("M 14.2,12.7 L 20.5,6.1 L 23.1,12.6 Z"));
-        dc.DrawGeometry(Brush("#D8F3FC"), null, Geometry.Parse("M 25.5,6.3 L 29.1,12.8 L 34,11.7 L 31.2,6.4 Z"));
-        dc.DrawGeometry(Brush("#A8D9EA"), null, Geometry.Parse("M 13.4,18.2 L 20.5,17.7 L 15.7,23.1 Z"));
-        dc.DrawGeometry(Brush("#9ED4E6"), null, Geometry.Parse("M 28.1,18 L 34.5,16.9 L 32.6,23.3 Z"));
+        dc.DrawGeometry(Brush("#EAFBFF", 0.82), null, Geometry.Parse("M 15.8,12.0 L 20.5,5.8 L 22.2,12.5 Z"));
+        dc.DrawGeometry(Brush("#ECFBFF", 0.65), null, Geometry.Parse("M 25.7,5.7 L 29.1,12.0 L 32.1,10.7 L 30.5,6.1 Z"));
+        dc.DrawGeometry(Brush("#A9D8E8", 0.86), null, Geometry.Parse("M 15.1,18.0 L 20.6,17.4 L 16.3,21.8 Z"));
+        dc.DrawGeometry(Brush("#9ED4E6", 0.82), null, Geometry.Parse("M 27.6,17.7 L 33.1,16.7 L 31.4,21.9 Z"));
 
-        DrawStar(dc, new Point(24, 15.3), 10.2, 4.1, Brush("#FFD45E"), Pen("#FFFFFF", 1.05));
-        DrawStar(dc, new Point(24, 15.3), 4.1, 1.7, Brush("#F47A22"), null);
+        DrawStar(dc, new Point(24, 15.1), 8.4, 3.5, Linear("#FFE783", "#F2B736", 0, 0, 0, 1), Pen("#FFFFFF", 0.95));
+        DrawStar(dc, new Point(24, 15.1), 3.5, 1.45, Brush("#F47A22"), null);
+        dc.DrawLine(Pen("#FFF5BC", 0.65, 0.9), new Point(24, 7.0), new Point(24, 23.1));
+        dc.DrawLine(Pen("#FFF5BC", 0.55, 0.82), new Point(16.1,15.1), new Point(31.9,15.1));
 
-        foreach (var p in new[] { new Point(24, 3.9), new Point(34.7,15.2), new Point(24,26.6), new Point(13.3,15.2), new Point(18.5,8.3), new Point(29.5,8.4) })
+        foreach (var p in new[] { new Point(19.5,8.4), new Point(28.5,8.5), new Point(33.1,15.1), new Point(24,24.2), new Point(14.9,15.1) })
         {
-            dc.DrawEllipse(Brush("#D43A9D"), null, p, 2.0, 2.0);
+            DrawHeart(dc, p, 0.07, Brush("#D43A9D"), null);
         }
     }
 
@@ -450,25 +456,37 @@ public sealed class CursorAssetGenerator
         var outer = new StreamGeometry();
         using (var ctx = outer.Open())
         {
-            ctx.BeginFigure(new Point(24 + s * 12.3, 13), true, true);
-            ctx.BezierTo(new Point(24 + s * 17.7, 1.2), new Point(24 + s * 25.7, 2.1), new Point(24 + s * 26.2, 14.8), true, false);
-            ctx.BezierTo(new Point(24 + s * 26.4, 22.2), new Point(24 + s * 20.5, 24.6), new Point(24 + s * 17.5, 23), true, false);
-            ctx.BezierTo(new Point(24 + s * 18.8, 28.5), new Point(24 + s * 13.1, 27.9), new Point(24 + s * 12.7, 21.6), true, false);
+            ctx.BeginFigure(new Point(24 + s * 12.1, 13.2), true, true);
+            ctx.BezierTo(new Point(24 + s * 16.2, 2.6), new Point(24 + s * 22.7, 0.3), new Point(24 + s * 26.1, 10.7), true, false);
+            ctx.BezierTo(new Point(24 + s * 29.1, 19.8), new Point(24 + s * 21.8, 24.8), new Point(24 + s * 16.8, 22.1), true, false);
+            ctx.BezierTo(new Point(24 + s * 18.6, 28.1), new Point(24 + s * 12.5, 28.6), new Point(24 + s * 11.9, 21.9), true, false);
+            ctx.BezierTo(new Point(24 + s * 9.7, 20.5), new Point(24 + s * 9.8, 16.7), new Point(24 + s * 12.1, 13.2), true, false);
         }
 
         outer.Freeze();
-        dc.DrawGeometry(Brush("#FFFFFF"), Pen("#15151C", 2.1), outer);
+        dc.DrawGeometry(Brush("#FFFFFF"), Pen("#111118", 1.9), outer);
 
         var inner = new StreamGeometry();
         using (var ctx = inner.Open())
         {
-            ctx.BeginFigure(new Point(24 + s * 18.2, 9), true, true);
-            ctx.BezierTo(new Point(24 + s * 22.6, 7), new Point(24 + s * 22.9, 16.2), new Point(24 + s * 18, 21.5), true, false);
-            ctx.BezierTo(new Point(24 + s * 20.6, 18), new Point(24 + s * 18.9, 12.5), new Point(24 + s * 18.2, 9), true, false);
+            ctx.BeginFigure(new Point(24 + s * 18.0, 8.8), true, true);
+            ctx.BezierTo(new Point(24 + s * 22.5, 6.8), new Point(24 + s * 24.2, 13.8), new Point(24 + s * 18.7, 20.2), true, false);
+            ctx.BezierTo(new Point(24 + s * 20.7, 15.8), new Point(24 + s * 19.9, 11.1), new Point(24 + s * 18.0, 8.8), true, false);
         }
 
         inner.Freeze();
-        dc.DrawGeometry(Brush("#B4B0F0"), null, inner);
+        dc.DrawGeometry(Brush("#B4B0F0", 0.95), null, inner);
+
+        var lower = new StreamGeometry();
+        using (var ctx = lower.Open())
+        {
+            ctx.BeginFigure(new Point(24 + s * 13.1, 19.9), true, true);
+            ctx.BezierTo(new Point(24 + s * 16.4, 23.7), new Point(24 + s * 18.9, 23.7), new Point(24 + s * 21.0, 20.8), true, false);
+            ctx.BezierTo(new Point(24 + s * 18.0, 27.0), new Point(24 + s * 12.5, 25.7), new Point(24 + s * 13.1, 19.9), true, false);
+        }
+
+        lower.Freeze();
+        dc.DrawGeometry(Brush("#EDEAFF"), null, lower);
     }
 
     private static void DrawWandHorn(DrawingContext dc, bool left)
@@ -477,13 +495,13 @@ public sealed class CursorAssetGenerator
         var horn = new StreamGeometry();
         using (var ctx = horn.Open())
         {
-            ctx.BeginFigure(new Point(24 + s * 7.9, 5.3), true, true);
-            ctx.BezierTo(new Point(24 + s * 9.7, 0.6), new Point(24 + s * 12.9, 0.4), new Point(24 + s * 11.3, 8.6), true, false);
-            ctx.LineTo(new Point(24 + s * 6.9, 9.3), true, false);
+            ctx.BeginFigure(new Point(24 + s * 8.0, 4.4), true, true);
+            ctx.BezierTo(new Point(24 + s * 9.3, 0.9), new Point(24 + s * 12.0, 0.5), new Point(24 + s * 11.2, 7.6), true, false);
+            ctx.BezierTo(new Point(24 + s * 10.1, 9.0), new Point(24 + s * 8.4, 9.0), new Point(24 + s * 7.2, 8.0), true, false);
         }
 
         horn.Freeze();
-        dc.DrawGeometry(Brush("#D84CA9"), Pen("#15151C", 1.35), horn);
+        dc.DrawGeometry(Linear("#F062C0", "#A72A86", 0, 0, 0, 1), Pen("#111118", 1.25), horn);
     }
 
     private static void DrawArrow(DrawingContext dc, string fill, string stroke, string accent)
