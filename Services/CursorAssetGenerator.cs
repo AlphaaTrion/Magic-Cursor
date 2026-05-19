@@ -18,7 +18,7 @@ public sealed class CursorAssetGenerator
     private const int LogicalSize = 48;
     private const int CursorPixelSize = 128;
     private const int PreviewPixelSize = 512;
-    private const string AssetRevision = "q29";
+    private const string AssetRevision = "q30";
 
     private static readonly string[] ThemeRoles =
     [
@@ -430,11 +430,11 @@ public sealed class CursorAssetGenerator
             bitmap.EndInit();
             bitmap.Freeze();
 
-            var scale = 0.00495;
+            var scale = 0.00485;
             var transform = new TransformGroup();
             transform.Children.Add(new TranslateTransform(-bitmap.PixelWidth / 2.0, -bitmap.PixelHeight / 2.0));
             transform.Children.Add(new RotateTransform(43));
-            transform.Children.Add(new ScaleTransform(scale * 0.82, scale));
+            transform.Children.Add(new ScaleTransform(scale, scale));
             transform.Children.Add(new TranslateTransform(24, 20.8));
 
             dc.PushTransform(transform);
