@@ -128,17 +128,20 @@ public sealed class AgentRuntime : IDisposable
                 theme.Id,
                 _settings.ThemeColorOverrides.GetValueOrDefault(theme.Id, theme.Effect.PrimaryColor),
                 ThemeAnimationService.Get(_settings, theme.Id).Scale,
-                ThemeAnimationService.Get(_settings, theme.Id).Brightness) is { } lightsaber)
+                ThemeAnimationService.Get(_settings, theme.Id).Brightness,
+                ThemeCursorSizeService.Get(_settings, theme.Id)) is { } lightsaber)
         {
             return lightsaber;
         }
 
-        if (_settings.ThemeColorOverrides.TryGetValue(theme.Id, out var color)
+        if ((_settings.ThemeColorOverrides.TryGetValue(theme.Id, out var color)
+                || Math.Abs(ThemeCursorSizeService.Get(_settings, theme.Id) - 1.0) > 0.001)
             && _themeService.RebuildBuiltInTheme(
                 theme.Id,
-                color,
+                color ?? theme.Effect.PrimaryColor,
                 ThemeAnimationService.Get(_settings, theme.Id).Scale,
-                ThemeAnimationService.Get(_settings, theme.Id).Brightness) is { } rebuilt)
+                ThemeAnimationService.Get(_settings, theme.Id).Brightness,
+                ThemeCursorSizeService.Get(_settings, theme.Id)) is { } rebuilt)
         {
             return rebuilt;
         }

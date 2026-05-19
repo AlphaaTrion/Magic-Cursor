@@ -63,6 +63,11 @@ public sealed class ThemeService
         return _generator.RebuildBuiltInTheme(id, accentColor, glowScale, glowBrightness);
     }
 
+    public CursorTheme? RebuildBuiltInTheme(string id, string accentColor, double glowScale, double glowBrightness, double cursorScale)
+    {
+        return _generator.RebuildBuiltInTheme(id, accentColor, glowScale, glowBrightness, cursorScale);
+    }
+
     private static IEnumerable<CursorTheme> LoadUserThemes()
     {
         AppPaths.Ensure();

@@ -30,6 +30,7 @@ public partial class MainWindow : Window
     private string? _importedImagePath;
     private bool _updatingAnimationControls;
     private bool _updatingColorControls;
+    private bool _updatingCursorControls;
 
     public MainWindow()
     {
@@ -75,12 +76,7 @@ public partial class MainWindow : Window
         _themes.Clear();
         foreach (var theme in _themeService.LoadThemes())
         {
-            if (_settings.ThemeColorOverrides.TryGetValue(theme.Id, out var color)
-                && _themeService.RebuildBuiltInTheme(
-                    theme.Id,
-                    color,
-                    ThemeAnimationService.Get(_settings, theme.Id).Scale,
-                    ThemeAnimationService.Get(_settings, theme.Id).Brightness) is { } rebuilt)
+            if (RebuildThemeForCurrentSettings(theme) is { } rebuilt)
             {
                 rebuilt.IsActive = string.Equals(rebuilt.Id, _settings.ActiveThemeId, StringComparison.OrdinalIgnoreCase);
                 _themes.Add(rebuilt);
@@ -141,6 +137,7 @@ public partial class MainWindow : Window
         ApplyOverlayEffect(theme);
         UpdateAnimationControls(theme);
         UpdateColorControls(theme);
+        UpdateCursorControls(theme);
     }
 
     private void ApplyTheme_Click(object sender, RoutedEventArgs e)
@@ -287,24 +284,11 @@ public partial class MainWindow : Window
         {
             try
             {
-                var rebuilt = _themeService.RebuildBuiltInTheme(
-                    theme.Id,
-                    selectedColor,
-                    ThemeAnimationService.Get(_settings, theme.Id).Scale,
-                    ThemeAnimationService.Get(_settings, theme.Id).Brightness);
+                var rebuilt = RebuildThemeForCurrentSettings(theme);
                 if (rebuilt is not null)
                 {
-                    var wasActive = theme.IsActive;
-                    var index = _themes.IndexOf(theme);
-                    if (index >= 0)
-                    {
-                        rebuilt.IsActive = wasActive;
-                        _themes[index] = rebuilt;
-                        ThemesListBox.SelectedItem = rebuilt;
-                        ApplyOverlayEffect(rebuilt);
-                    }
-
-                    if (wasActive)
+                    ReplaceSelectedTheme(theme, rebuilt);
+                    if (rebuilt.IsActive)
                     {
                         _cursorService.Apply(rebuilt);
                         SetActiveTheme(rebuilt.Id);
@@ -336,6 +320,40 @@ public partial class MainWindow : Window
         ApplyOverlayEffect(theme);
         SaveSettings();
         SetStatus($"{theme.Name} animation size {AnimationSizeSlider.Value:0.00}x, brightness {AnimationBrightnessSlider.Value:0.00}x.");
+    }
+
+    private void CursorSizeSlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (!IsLoaded || _updatingCursorControls || ThemesListBox.SelectedItem is not CursorTheme theme)
+        {
+            return;
+        }
+
+        ThemeCursorSizeService.Set(_settings, theme.Id, CursorSizeSlider.Value);
+        SaveSettings();
+
+        try
+        {
+            var rebuilt = RebuildThemeForCurrentSettings(theme);
+            if (rebuilt is null)
+            {
+                SetStatus("Cursor size is available for built-in cursor themes.");
+                return;
+            }
+
+            ReplaceSelectedTheme(theme, rebuilt);
+            if (rebuilt.IsActive)
+            {
+                _cursorService.Apply(rebuilt);
+                SetActiveTheme(rebuilt.Id);
+            }
+
+            SetStatus($"{rebuilt.Name} cursor size {CursorSizeSlider.Value:0.00}x. Animation size is unchanged.");
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Could not resize cursor: {ex.Message}");
+        }
     }
 
     private void PauseEffects_Changed(object sender, RoutedEventArgs e)
@@ -683,6 +701,20 @@ public partial class MainWindow : Window
         }
     }
 
+    private void UpdateCursorControls(CursorTheme theme)
+    {
+        _updatingCursorControls = true;
+        try
+        {
+            CursorSizeSlider.IsEnabled = !theme.IsUserTheme;
+            CursorSizeSlider.Value = ThemeCursorSizeService.Get(_settings, theme.Id);
+        }
+        finally
+        {
+            _updatingCursorControls = false;
+        }
+    }
+
     private void UpdateColorControls(CursorTheme theme)
     {
         _updatingColorControls = true;
@@ -713,6 +745,41 @@ public partial class MainWindow : Window
     private string SelectedColor()
     {
         return (ThemeColorComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "";
+    }
+
+    private CursorTheme? RebuildThemeForCurrentSettings(CursorTheme theme)
+    {
+        if (theme.IsUserTheme)
+        {
+            return null;
+        }
+
+        var color = _settings.ThemeColorOverrides.TryGetValue(theme.Id, out var savedColor)
+            ? savedColor
+            : theme.Effect.PrimaryColor;
+        var animation = ThemeAnimationService.Get(_settings, theme.Id);
+        var cursorScale = ThemeCursorSizeService.Get(_settings, theme.Id);
+        return _themeService.RebuildBuiltInTheme(theme.Id, color, animation.Scale, animation.Brightness, cursorScale);
+    }
+
+    private void ReplaceSelectedTheme(CursorTheme oldTheme, CursorTheme rebuilt)
+    {
+        var wasActive = oldTheme.IsActive;
+        var index = _themes.IndexOf(oldTheme);
+        if (index < 0)
+        {
+            return;
+        }
+
+        rebuilt.IsActive = wasActive;
+        _themes[index] = rebuilt;
+        ThemesListBox.SelectedItem = rebuilt;
+        ThemePreviewImage.Source = File.Exists(rebuilt.PreviewPath)
+            ? CursorAssetGenerator.LoadPreview(rebuilt.PreviewPath)
+            : null;
+        ApplyOverlayEffect(rebuilt);
+        UpdateCursorControls(rebuilt);
+        ThemesListBox.Items.Refresh();
     }
 
     private void ApplyOverlayEffect(CursorTheme theme)

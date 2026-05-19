@@ -56,6 +56,13 @@ public sealed class SettingsService
                     };
                 },
                 StringComparer.OrdinalIgnoreCase);
+        settings.ThemeCursorSizeOverrides = settings.ThemeCursorSizeOverrides
+            .Where(pair => !string.IsNullOrWhiteSpace(pair.Key))
+            .GroupBy(pair => NormalizeThemeId(pair.Key), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(
+                group => group.Key,
+                group => Math.Clamp(group.Last().Value <= 0 ? 1 : group.Last().Value, 0.7, 1.35),
+                StringComparer.OrdinalIgnoreCase);
         settings.BlockedProcessNames = settings.BlockedProcessNames
             .Where(name => !string.IsNullOrWhiteSpace(name))
             .Select(NormalizeProcessName)

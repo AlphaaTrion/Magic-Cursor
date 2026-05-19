@@ -38,6 +38,7 @@ public static class ThemeAnimationService
             ThemeEffectOverrides = settings.ThemeEffectOverrides,
             ThemeColorOverrides = settings.ThemeColorOverrides,
             ThemeAnimationOverrides = settings.ThemeAnimationOverrides,
+            ThemeCursorSizeOverrides = settings.ThemeCursorSizeOverrides,
             BlockedProcessNames = settings.BlockedProcessNames
         };
     }

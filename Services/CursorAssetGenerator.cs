@@ -18,7 +18,7 @@ public sealed class CursorAssetGenerator
     private const int LogicalSize = 48;
     private const int CursorPixelSize = 128;
     private const int PreviewPixelSize = 512;
-    private const string AssetRevision = "q31";
+    private const string AssetRevision = "q32";
 
     private static readonly string[] ThemeRoles =
     [
@@ -53,10 +53,15 @@ public sealed class CursorAssetGenerator
 
     public CursorTheme? RebuildBuiltInTheme(string id, string accentColor)
     {
-        return RebuildBuiltInTheme(id, accentColor, 1.0, 1.0);
+        return RebuildBuiltInTheme(id, accentColor, 1.0, 1.0, 1.0);
     }
 
     public CursorTheme? RebuildBuiltInTheme(string id, string accentColor, double glowScale, double glowBrightness)
+    {
+        return RebuildBuiltInTheme(id, accentColor, glowScale, glowBrightness, 1.0);
+    }
+
+    public CursorTheme? RebuildBuiltInTheme(string id, string accentColor, double glowScale, double glowBrightness, double cursorScale)
     {
         var spec = BuiltInSpecs().FirstOrDefault(item => item.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
         if (spec is null)
@@ -69,6 +74,7 @@ public sealed class CursorAssetGenerator
             AccentColor = accentColor,
             GlowScale = Math.Clamp(glowScale <= 0 ? 1 : glowScale, 0.45, 2.0),
             GlowBrightness = Math.Clamp(glowBrightness <= 0 ? 1 : glowBrightness, 0.35, 1.8),
+            CursorScale = Math.Clamp(cursorScale <= 0 ? 1 : cursorScale, 0.7, 1.35),
             Effect = EffectWithAccent(spec.Effect, accentColor)
         });
     }
@@ -141,8 +147,9 @@ public sealed class CursorAssetGenerator
         var glowVariantSuffix = spec.Id.Equals("lightsaber", StringComparison.OrdinalIgnoreCase)
             ? $"{variantSuffix}-s{SettingSlug(spec.GlowScale)}-b{SettingSlug(spec.GlowBrightness)}"
             : variantSuffix;
-        var previewPath = Path.Combine(folder, $"preview-{AssetRevision}{variantSuffix}.png");
-        var cursorPath = Path.Combine(folder, $"arrow-{AssetRevision}{variantSuffix}.cur");
+        var cursorScaleSuffix = $"-c{CursorScaleSlug(spec.CursorScale)}";
+        var previewPath = Path.Combine(folder, $"preview-{AssetRevision}{variantSuffix}{cursorScaleSuffix}.png");
+        var cursorPath = Path.Combine(folder, $"arrow-{AssetRevision}{variantSuffix}{cursorScaleSuffix}.cur");
 
         if (!File.Exists(previewPath))
         {
@@ -207,12 +214,18 @@ public sealed class CursorAssetGenerator
     private static string SettingSlug(double value) =>
         Math.Clamp(value <= 0 ? 1 : value, 0.35, 2.0).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).Replace(".", "");
 
+    private static string CursorScaleSlug(double value) =>
+        Math.Clamp(value <= 0 ? 1 : value, 0.7, 1.35).ToString("0.00", CultureInfo.InvariantCulture).Replace(".", "");
+
     private static RenderTargetBitmap RenderBuiltInGlow(BuiltInThemeSpec spec, int outputSize)
     {
         var visual = new DrawingVisual();
         using (var dc = visual.RenderOpen())
         {
             dc.PushTransform(new ScaleTransform(outputSize / (double)LogicalSize, outputSize / (double)LogicalSize));
+            dc.PushTransform(new TranslateTransform(LogicalSize / 2.0, LogicalSize / 2.0));
+            dc.PushTransform(new ScaleTransform(spec.CursorScale, spec.CursorScale));
+            dc.PushTransform(new TranslateTransform(-LogicalSize / 2.0, -LogicalSize / 2.0));
             switch (spec.Id)
             {
                 case "lightsaber":
@@ -235,6 +248,9 @@ public sealed class CursorAssetGenerator
         using (var dc = visual.RenderOpen())
         {
             dc.PushTransform(new ScaleTransform(outputSize / (double)LogicalSize, outputSize / (double)LogicalSize));
+            dc.PushTransform(new TranslateTransform(LogicalSize / 2.0, LogicalSize / 2.0));
+            dc.PushTransform(new ScaleTransform(spec.CursorScale, spec.CursorScale));
+            dc.PushTransform(new TranslateTransform(-LogicalSize / 2.0, -LogicalSize / 2.0));
             switch (spec.Id)
             {
                 case "star-wand":
@@ -313,6 +329,9 @@ public sealed class CursorAssetGenerator
                     DrawDarkOneDagger(dc);
                     break;
             }
+            dc.Pop();
+            dc.Pop();
+            dc.Pop();
             dc.Pop();
         }
 
@@ -1442,5 +1461,6 @@ public sealed class CursorAssetGenerator
         ClickEffect Effect,
         string AccentColor = "#55F7FF",
         double GlowScale = 1.0,
-        double GlowBrightness = 1.0);
+        double GlowBrightness = 1.0,
+        double CursorScale = 1.0);
 }

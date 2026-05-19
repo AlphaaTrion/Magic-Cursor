@@ -46,6 +46,7 @@ public sealed class AppSettings
     public Dictionary<string, string> ThemeEffectOverrides { get; set; } = [];
     public Dictionary<string, string> ThemeColorOverrides { get; set; } = [];
     public Dictionary<string, ThemeAnimationSettings> ThemeAnimationOverrides { get; set; } = [];
+    public Dictionary<string, double> ThemeCursorSizeOverrides { get; set; } = [];
     public List<string> BlockedProcessNames { get; set; } = [];
 }
 
