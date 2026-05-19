@@ -195,7 +195,7 @@
 
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Cursor size" Style="{StaticResource FieldLabel}" />
-                                    <TextBlock Text="{Binding ElementName=CursorSizeSlider, Path=Value, StringFormat=Pointer artwork {0:0.00}x}" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,0,0,4" />
+                                    <TextBlock Text="{Binding ElementName=CursorSizeSlider, Path=Value, StringFormat=Pointer artwork {0:0.00}x  (2.00x is the Windows cursor canvas max)}" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,0,0,4" />
                                     <Slider x:Name="CursorSizeSlider" Minimum="0.7" Maximum="2" Value="1" TickFrequency="0.05" ValueChanged="CursorSizeSlider_Changed" />
 
                                     <TextBlock Text="Click animation" Style="{StaticResource FieldLabel}" Margin="0,18,0,2" />

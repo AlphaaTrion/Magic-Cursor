@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using CursorMagic.Models;
 using CursorMagic.Services;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
@@ -22,6 +23,7 @@ public partial class MainWindow : Window
     private readonly CursorPackService _packService = new();
     private readonly ClickEffectOverlayService _overlayService = new();
     private readonly ForegroundAppService _foregroundService = new();
+    private readonly DispatcherTimer _cursorSizeDebounceTimer = new();
     private readonly ObservableCollection<CursorTheme> _themes = [];
     private readonly ObservableCollection<string> _blockedApps = [];
 
@@ -35,6 +37,12 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        _cursorSizeDebounceTimer.Interval = TimeSpan.FromMilliseconds(360);
+        _cursorSizeDebounceTimer.Tick += (_, _) =>
+        {
+            _cursorSizeDebounceTimer.Stop();
+            ApplyCursorSizeChange();
+        };
     }
 
     private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -330,8 +338,19 @@ public partial class MainWindow : Window
         }
 
         ThemeCursorSizeService.Set(_settings, theme.Id, CursorSizeSlider.Value);
-        SaveSettings();
+        _cursorSizeDebounceTimer.Stop();
+        _cursorSizeDebounceTimer.Start();
+        SetStatus($"{theme.Name} cursor size {CursorSizeSlider.Value:0.00}x queued. Animation size is unchanged.");
+    }
 
+    private void ApplyCursorSizeChange()
+    {
+        if (ThemesListBox.SelectedItem is not CursorTheme theme)
+        {
+            return;
+        }
+
+        SaveSettings();
         try
         {
             var rebuilt = RebuildThemeForCurrentSettings(theme);
@@ -546,6 +565,7 @@ public partial class MainWindow : Window
     private void Window_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
         App.Log("MainWindow closing");
+        _cursorSizeDebounceTimer.Stop();
         if (_settings.RestoreOnExit)
         {
             try
