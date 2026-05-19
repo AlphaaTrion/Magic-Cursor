@@ -122,6 +122,12 @@ public sealed class ClickEffectOverlayService : IDisposable
             return;
         }
 
+        if (!string.IsNullOrWhiteSpace(CurrentGlowCursorPath))
+        {
+            TriggerGlowSwap();
+            return;
+        }
+
         var point = _window.MoveNearScreenPoint(screenX, screenY);
         SpawnParticles(point.X, point.Y);
     }

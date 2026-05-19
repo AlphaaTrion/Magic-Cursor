@@ -93,7 +93,11 @@ public sealed class AgentRuntime : IDisposable
         var activeTheme = LoadActiveTheme();
         if (activeTheme is not null)
         {
+            activeTheme = RebuildThemeForSettings(activeTheme);
             _overlayService.CurrentEffect = EffectResolver.Resolve(activeTheme, _settings);
+            _overlayService.CurrentGlowCursorPath = UsesCursorSwapAnimation(activeTheme)
+                ? activeTheme.GlowCursorPath
+                : "";
         }
         else
         {
@@ -114,6 +118,23 @@ public sealed class AgentRuntime : IDisposable
         return themes.FirstOrDefault(theme => string.Equals(theme.Id, _settings.ActiveThemeId, StringComparison.OrdinalIgnoreCase))
             ?? themes.FirstOrDefault();
     }
+
+    private CursorTheme RebuildThemeForSettings(CursorTheme theme)
+    {
+        if (_settings.ThemeColorOverrides.TryGetValue(theme.Id, out var color)
+            && _themeService.RebuildBuiltInTheme(theme.Id, color) is { } rebuilt)
+        {
+            return rebuilt;
+        }
+
+        return theme;
+    }
+
+    private static bool UsesCursorSwapAnimation(CursorTheme theme) =>
+        (theme.Id.Equals("lightsaber", StringComparison.OrdinalIgnoreCase)
+            || theme.Id.Equals("omnitrix", StringComparison.OrdinalIgnoreCase))
+        && !string.IsNullOrWhiteSpace(theme.GlowCursorPath)
+        && File.Exists(theme.GlowCursorPath);
 
     private void TogglePause()
     {

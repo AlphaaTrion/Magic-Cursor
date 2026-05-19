@@ -678,13 +678,21 @@ public partial class MainWindow : Window
     private void ApplyOverlayEffect(CursorTheme theme)
     {
         _overlayService.CurrentEffect = EffectResolver.Resolve(theme, _settings);
-        _overlayService.CurrentGlowCursorPath = "";
+        _overlayService.CurrentGlowCursorPath = UsesCursorSwapAnimation(theme)
+            ? theme.GlowCursorPath
+            : "";
     }
 
     private ClickEffect ResolveEffect(CursorTheme theme)
     {
         return EffectResolver.Resolve(theme, _settings);
     }
+
+    private static bool UsesCursorSwapAnimation(CursorTheme theme) =>
+        (theme.Id.Equals("lightsaber", StringComparison.OrdinalIgnoreCase)
+            || theme.Id.Equals("omnitrix", StringComparison.OrdinalIgnoreCase))
+        && !string.IsNullOrWhiteSpace(theme.GlowCursorPath)
+        && File.Exists(theme.GlowCursorPath);
 
     private static BitmapImage LoadBitmap(string path)
     {
